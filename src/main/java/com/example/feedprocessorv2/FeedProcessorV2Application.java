@@ -100,7 +100,24 @@ class JoshlongMarkdownRenderer {
 	}
 
 	String render(SpringTip tip) {
-		return null;
+		var url = tip.blogUrl();
+		var title = tip.title();
+		var seasonNo = tip.seasonNumber();
+		var ytUrl = tip.youtubeEmbedUrl();
+		var date = tip.date();
+		var ytUrlHtml = String
+				.format("""
+						<iframe width="560" height="315" src="%s" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+						"""
+						.strip().trim().stripIndent(), tip.youtubeEmbedUrl());
+		var md = """
+				## %s
+
+				**%s**
+
+				%s
+				""";
+		return String.format(md, title, this.simpleDateFormat.format(date), ytUrlHtml);
 	}
 
 	String render(TalkAbstract talkAbstract) {
