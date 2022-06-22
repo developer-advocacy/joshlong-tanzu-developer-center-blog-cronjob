@@ -17,10 +17,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * todo blogs todo spring tips
+ * todo blogs
  *
  * <h2>Supported</h2>
  * <ol>
+ * <LI>spring tips</LI>
  * <LI>abstracts</LI>
  * <LI>appearances</LI>
  * <LI>podcasts</LI>
