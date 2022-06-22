@@ -65,6 +65,31 @@ class JoshlongMarkdownRenderer {
 		}
 	}
 
+	String renderGroup(String title, List<Object> list) {
+		var accumulatedMd = list//
+				.stream()//
+				.map(o -> {
+					if (o instanceof Podcast p)
+						return render(p);
+					if (o instanceof Appearance a)
+						return render(a);
+					if (o instanceof BlogPost bp)
+						return render(bp);
+					if (o instanceof SpringTip st)
+						return render(st);
+					if (o instanceof TalkAbstract ta)
+						return render(ta);
+					throw new RuntimeException("can't render the type, " + o.getClass().getName() + "!");
+				})//
+				.collect(Collectors.joining(System.lineSeparator() + System.lineSeparator()));
+		var md = String.format("""
+				## %s
+
+				%s
+				""", title, accumulatedMd);
+		return md;
+	}
+
 	String renderMarkdownAsHtml(String markdown) {
 		var parser = Parser.builder().build();//
 		var document = parser.parse(markdown);//
@@ -77,7 +102,7 @@ class JoshlongMarkdownRenderer {
 		var event = appearance.event();
 		var blurb = appearance.marketingBlurb();
 		var md = """
-				## %s
+				### %s
 
 				**%s**
 
@@ -88,7 +113,7 @@ class JoshlongMarkdownRenderer {
 
 	String render(Podcast podcast) {
 		var md = """
-				## %s
+				### %s
 				**%s**
 
 				[listen](%s)
@@ -111,7 +136,7 @@ class JoshlongMarkdownRenderer {
 						"""
 						.strip().trim().stripIndent(), tip.youtubeEmbedUrl());
 		var md = """
-				## %s
+				### %s
 
 				**%s**
 
@@ -121,11 +146,21 @@ class JoshlongMarkdownRenderer {
 	}
 
 	String render(TalkAbstract talkAbstract) {
-		return null;
+		return String.format("""
+				### %s
+
+				%s
+				""", talkAbstract.title(), talkAbstract.description());
 	}
 
 	String render(BlogPost post) {
-		return null;
+		return String.format("""
+				### %s
+
+				**%s**
+
+				%s
+				""", post.title(), this.simpleDateFormat.format(post.published()), post.description());
 	}
 
 }
