@@ -87,37 +87,33 @@ class DefaultJoshlongService implements JoshlongService {
 		this.posts = initFeed();
 	}
 
+	private record StringyAppearance(String event, String startDate, String endDate, String time,
+			String marketingBlurb) {
+	}
+
 	private record StringySpringTip(String blogUrl, String date, int seasonNumber, String title, String youtubeId,
 			String youtubeEmbedUrl) {
-
 	}
 
 	private record StringyPodcast(String id, String uid, URL episodeUri, URL episodePhotoUri, String description,
 			String date) {
-
-	}
-
-	@SneakyThrows
-	private static URL buildUrlFrom(String href) {
-		return new URL(href);
-	}
-
-	@SneakyThrows
-	private List<BlogPost> initFeed() {
-		var url = buildUrlFrom("https://spring.io/blog/category/engineering.atom");
-		try (var in = url.openStream(); var is = new InputStreamReader(in)) {
-			var feed = new SyndFeedInput().build(is);
-			return feed.getEntries().stream()
-					.filter(se -> se.getAuthors().stream().anyMatch(s -> s.getName().contains("Josh Long")))
-					.map(se -> new BlogPost(se.getTitle(), se.getUpdatedDate(), ""))
-					.sorted(Comparator.comparing(BlogPost::published).reversed()).toList();
-		}
-
 	}
 
 	@Override
 	public Flux<BlogPost> getBlogPosts() {
 		return Flux.fromIterable(this.posts).doOnNext(bp -> log.info(bp.title() + " " + bp.published().toString()));
+	}
+
+	@Override
+	public Flux<Abstract> getAbstracts() {
+		var query = """
+				query { abstracts }
+				""";
+		var results = this.client//
+				.document(query) //
+				.retrieve("abstracts")//
+				.toEntity(String.class);
+		return results.flatMapMany(html -> Flux.fromIterable(parseAbstracts(html)));
 	}
 
 	@Override
@@ -136,23 +132,49 @@ class DefaultJoshlongService implements JoshlongService {
 				.flatMapMany(list -> Flux.fromIterable(buildSpringTipsList(list)));
 	}
 
+	@Override
+	public Flux<Appearance> getAppearances() {
+		var query = """
+				{ appearances { event, startDate, endDate, time, marketingBlurb } }
+				""";
+		var stringy = client //
+				.document(query)//
+				.retrieve("appearances") //
+				.toEntityList(StringyAppearance.class) //
+				.map(sa -> sa.stream()//
+						.map(DefaultJoshlongService::fromStringAppearance) //
+						.sorted(Comparator.comparing(Appearance::startDate))//
+						.toList());
+		return stringy.flatMapMany(Flux::fromIterable);
+	}
+
+	@Override
+	public Flux<Podcast> getPodcasts() {
+		var podcasts = """
+				{
+				  podcasts {
+				    id
+				    uid
+				    episodeUri
+				    episodePhotoUri
+				    description
+				    date
+				  }
+				}
+				""";
+		return client.document(podcasts)//
+				.retrieve("podcasts")//
+				.toEntityList(StringyPodcast.class).map(list -> list.stream()//
+						.map(DefaultJoshlongService::fromStringyPodcast)//
+						.collect(Collectors.toList()))
+				.flatMapMany(Flux::fromIterable);
+	}
+
 	private static List<SpringTip> buildSpringTipsList(List<StringySpringTip> stringySpringTips) {
 		return stringySpringTips.stream()
 				.map(st -> new SpringTip(buildUrlFrom(st.blogUrl()), buildDateFrom(st.date()), st.seasonNumber(),
 						st.title(), st.youtubeId(), buildUrlFrom(st.youtubeEmbedUrl())))
 				.sorted(Comparator.comparing(SpringTip::date)).toList();
-	}
-
-	@Override
-	public Flux<Abstract> getAbstracts() {
-		var query = """
-				query { abstracts }
-				""";
-		var results = this.client//
-				.document(query) //
-				.retrieve("abstracts")//
-				.toEntity(String.class);
-		return results.flatMapMany(html -> Flux.fromIterable(parseAbstracts(html)));
 	}
 
 	private static List<Abstract> parseAbstracts(String html) {
@@ -194,42 +216,9 @@ class DefaultJoshlongService implements JoshlongService {
 		return list;
 	}
 
-	@Override
-	public Flux<Appearance> getAppearances() {
-		var query = """
-				{ appearances { event, startDate, endDate, time, marketingBlurb } }
-				""";
-		var stringy = client //
-				.document(query)//
-				.retrieve("appearances") //
-				.toEntityList(StringyAppearance.class) //
-				.map(sa -> sa.stream()//
-						.map(DefaultJoshlongService::fromStringAppearance) //
-						.sorted(Comparator.comparing(Appearance::startDate))//
-						.toList());
-		return stringy.flatMapMany(Flux::fromIterable);
-	}
-
-	@Override
-	public Flux<Podcast> getPodcasts() {
-		var podcasts = """
-				{
-				  podcasts {
-				    id
-				    uid
-				    episodeUri
-				    episodePhotoUri
-				    description
-				    date
-				  }
-				}
-				""";
-		return client.document(podcasts)//
-				.retrieve("podcasts")//
-				.toEntityList(StringyPodcast.class).map(list -> list.stream()//
-						.map(DefaultJoshlongService::fromStringyPodcast)//
-						.collect(Collectors.toList()))
-				.flatMapMany(Flux::fromIterable);
+	private static Appearance fromStringAppearance(StringyAppearance appearance) {
+		return new Appearance(appearance.event(), buildDateFrom(appearance.startDate()),
+				buildDateFrom(appearance.endDate()), appearance.time(), appearance.marketingBlurb());
 	}
 
 	private static Podcast fromStringyPodcast(StringyPodcast podcast) {
@@ -237,13 +226,21 @@ class DefaultJoshlongService implements JoshlongService {
 				podcast.description(), buildDateFrom(podcast.date()));
 	}
 
-	private record StringyAppearance(String event, String startDate, String endDate, String time,
-			String marketingBlurb) {
+	@SneakyThrows
+	private List<BlogPost> initFeed() {
+		var url = buildUrlFrom("https://spring.io/blog/category/engineering.atom");
+		try (var in = url.openStream(); var is = new InputStreamReader(in)) {
+			var feed = new SyndFeedInput().build(is);
+			return feed.getEntries().stream()
+					.filter(se -> se.getAuthors().stream().anyMatch(s -> s.getName().contains("Josh Long")))
+					.map(se -> new BlogPost(se.getTitle(), se.getUpdatedDate(), ""))
+					.sorted(Comparator.comparing(BlogPost::published).reversed()).toList();
+		}
 	}
 
-	private static Appearance fromStringAppearance(StringyAppearance appearance) {
-		return new Appearance(appearance.event(), buildDateFrom(appearance.startDate()),
-				buildDateFrom(appearance.endDate()), appearance.time(), appearance.marketingBlurb());
+	@SneakyThrows
+	private static URL buildUrlFrom(String href) {
+		return new URL(href);
 	}
 
 	@SneakyThrows
