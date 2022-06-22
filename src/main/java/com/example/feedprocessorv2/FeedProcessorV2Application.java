@@ -1,5 +1,6 @@
 package com.example.feedprocessorv2;
 
+import com.rometools.rome.io.SyndFeedInput;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,6 +47,8 @@ public class FeedProcessorV2Application {
 
 interface JoshlongService {
 
+	Flux<BlogPost> getBlogPosts();
+
 	Flux<SpringTip> getSpringTips();
 
 	Flux<Abstract> getAbstracts();
@@ -53,6 +57,9 @@ interface JoshlongService {
 
 	Flux<Podcast> getPodcasts();
 
+}
+
+record BlogPost(String title, Date published, String description) {
 }
 
 record SpringTip(URL blogUrl, Date date, int seasonNumber, String title, String youtubeId, URL youtubeEmbedUrl) {
@@ -73,21 +80,44 @@ class DefaultJoshlongService implements JoshlongService {
 
 	private final HttpGraphQlClient client;
 
+	private final List<BlogPost> posts;
+
 	DefaultJoshlongService(HttpGraphQlClient client) {
 		this.client = client;
+		this.posts = initFeed();
 	}
 
 	private record StringySpringTip(String blogUrl, String date, int seasonNumber, String title, String youtubeId,
 			String youtubeEmbedUrl) {
+
 	}
 
 	private record StringyPodcast(String id, String uid, URL episodeUri, URL episodePhotoUri, String description,
 			String date) {
+
 	}
 
 	@SneakyThrows
 	private static URL buildUrlFrom(String href) {
 		return new URL(href);
+	}
+
+	@SneakyThrows
+	private List<BlogPost> initFeed() {
+		var url = buildUrlFrom("https://spring.io/blog/category/engineering.atom");
+		try (var in = url.openStream(); var is = new InputStreamReader(in)) {
+			var feed = new SyndFeedInput().build(is);
+			return feed.getEntries().stream()
+					.filter(se -> se.getAuthors().stream().anyMatch(s -> s.getName().contains("Josh Long")))
+					.map(se -> new BlogPost(se.getTitle(), se.getUpdatedDate(), ""))
+					.sorted(Comparator.comparing(BlogPost::published).reversed()).toList();
+		}
+
+	}
+
+	@Override
+	public Flux<BlogPost> getBlogPosts() {
+		return Flux.fromIterable(this.posts).doOnNext(bp -> log.info(bp.title() + " " + bp.published().toString()));
 	}
 
 	@Override

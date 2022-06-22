@@ -20,6 +20,13 @@ class JoshlongServiceTest {
 	}
 
 	@Test
+	void blogs() throws Exception {
+		var blogs = this.service.getBlogPosts();
+		StepVerifier.create(blogs.take(1))
+				.expectNextMatches(bp -> bp.published() != null && StringUtils.hasText(bp.title())).verifyComplete();
+	}
+
+	@Test
 	void abstracts() throws Exception {
 		var abstracts = this.service.getAbstracts()//
 				.doOnNext(anAbstract -> log
