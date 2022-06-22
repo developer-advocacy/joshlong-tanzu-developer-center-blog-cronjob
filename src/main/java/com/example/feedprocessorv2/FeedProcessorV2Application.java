@@ -73,11 +73,9 @@ class JoshlongMarkdownRenderer {
 	}
 
 	String render(Appearance appearance) {
-
 		var start = appearance.startDate();
 		var event = appearance.event();
 		var blurb = appearance.marketingBlurb();
-
 		var md = """
 				## %s
 
