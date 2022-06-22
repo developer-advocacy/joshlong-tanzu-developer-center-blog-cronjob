@@ -68,8 +68,7 @@ class JoshlongMarkdownRenderer {
 	String renderMarkdownAsHtml(String markdown) {
 		var parser = Parser.builder().build();//
 		var document = parser.parse(markdown);//
-		var renderer = HtmlRenderer.builder()//
-				.escapeHtml(false).build();
+		var renderer = HtmlRenderer.builder().escapeHtml(false).build();
 		return renderer.render(document);
 	}
 
