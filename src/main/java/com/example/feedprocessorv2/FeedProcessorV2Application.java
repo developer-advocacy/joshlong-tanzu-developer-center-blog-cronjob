@@ -4,30 +4,30 @@ import com.rometools.rome.io.SyndFeedInput;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.jsoup.Jsoup;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.graphql.client.HttpGraphQlClient;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * todo blogs
- *
- * <h2>Supported</h2>
- * <ol>
- * <LI>spring tips</LI>
- * <LI>abstracts</LI>
- * <LI>appearances</LI>
- * <LI>podcasts</LI>
- * </ol>
+ * This provides a client to get access to all of my blogs, spring tips videos, talk
+ * abstracts, appearances, and podcasts
  *
  * @author Josh Long
  */
@@ -39,8 +39,71 @@ public class FeedProcessorV2Application {
 	}
 
 	@Bean
+	ApplicationRunner rendererRunner(JoshlongMarkdownRenderer renderer) {
+		return new ApplicationRunner() {
+			@Override
+			public void run(ApplicationArguments args) throws Exception {
+
+			}
+		};
+	}
+
+	@Bean
 	HttpGraphQlClient httpGraphQlClient() {
 		return HttpGraphQlClient.builder().url("https://api.joshlong.com/graphql").build();
+	}
+
+}
+
+@Component
+class JoshlongMarkdownRenderer {
+
+	private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+	private String renderDate(Date date) {
+		synchronized (this.simpleDateFormat) {
+			return simpleDateFormat.format(date);
+		}
+	}
+
+	String renderMarkdownAsHtml(String markdown) {
+		var parser = Parser.builder().build();//
+		var document = parser.parse(markdown);//
+		var renderer = HtmlRenderer.builder()//
+				.escapeHtml(false).build();
+		return renderer.render(document);
+	}
+
+	String render(Appearance appearance) {
+
+		var start = appearance.startDate();
+		var event = appearance.event();
+		var blurb = appearance.marketingBlurb();
+
+		var md = """
+				## %s
+
+				**%s**
+
+				%s
+				""";
+		return String.format(md, event, renderDate(start), blurb);
+	}
+
+	String render(Podcast podcast) {
+		return null;
+	}
+
+	String render(SpringTip tip) {
+		return null;
+	}
+
+	String render(TalkAbstract talkAbstract) {
+		return null;
+	}
+
+	String render(BlogPost post) {
+		return null;
 	}
 
 }
@@ -51,7 +114,7 @@ interface JoshlongService {
 
 	Flux<SpringTip> getSpringTips();
 
-	Flux<Abstract> getAbstracts();
+	Flux<TalkAbstract> getAbstracts();
 
 	Flux<Appearance> getAppearances();
 
@@ -65,7 +128,7 @@ record BlogPost(String title, Date published, String description) {
 record SpringTip(URL blogUrl, Date date, int seasonNumber, String title, String youtubeId, URL youtubeEmbedUrl) {
 }
 
-record Abstract(String title, String description) {
+record TalkAbstract(String title, String description) {
 }
 
 record Podcast(String id, String uid, URL episodeUri, URL episodePhotoUri, String description, Date date) {
@@ -105,7 +168,7 @@ class DefaultJoshlongService implements JoshlongService {
 	}
 
 	@Override
-	public Flux<Abstract> getAbstracts() {
+	public Flux<TalkAbstract> getAbstracts() {
 		var query = """
 				query { abstracts }
 				""";
@@ -177,7 +240,7 @@ class DefaultJoshlongService implements JoshlongService {
 				.sorted(Comparator.comparing(SpringTip::date)).toList();
 	}
 
-	private static List<Abstract> parseAbstracts(String html) {
+	private static List<TalkAbstract> parseAbstracts(String html) {
 		var document = Jsoup.parse(html);
 		var accumulator = new HashMap<String, List<String>>();
 		var seenH2 = false;
@@ -207,11 +270,11 @@ class DefaultJoshlongService implements JoshlongService {
 			}
 		}
 
-		var list = new ArrayList<Abstract>();
+		var list = new ArrayList<TalkAbstract>();
 		for (var e : accumulator.entrySet()) {
 			var values = e.getValue();
 			var joinedHtml = Strings.join(values.stream().iterator(), '\n');
-			list.add(new Abstract(e.getKey(), joinedHtml));
+			list.add(new TalkAbstract(e.getKey(), joinedHtml));
 		}
 		return list;
 	}
