@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Slf4j
 class JoshlongMarkdownRendererTest {
@@ -12,6 +14,16 @@ class JoshlongMarkdownRendererTest {
 	private final JoshlongMarkdownRenderer renderer = new JoshlongMarkdownRenderer();
 
 	private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+	@Test
+	void podcast() throws Exception {
+		var podcast = new Podcast("id", "uid", "the title", new URL("http://adobe.com"),
+				new URL("https://yahoo.com/photo"), "this is a description", new Date());
+		var podcastMd = this.renderer.render(podcast);
+		var podcastHtml = this.renderer.renderMarkdownAsHtml(podcastMd);
+		log.info("html:" + podcastHtml);
+		// Assertions.assertTrue( podcastHtml.contains(""));
+	}
 
 	@Test
 	void appearance() throws Exception {

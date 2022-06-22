@@ -4,7 +4,6 @@ import com.rometools.rome.io.SyndFeedInput;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.jsoup.Jsoup;
@@ -91,7 +90,16 @@ class JoshlongMarkdownRenderer {
 	}
 
 	String render(Podcast podcast) {
-		return null;
+		var md = """
+				## %s
+				**%s**
+
+				[listen](%s)
+
+				%s
+				""";
+		return String.format(md, podcast.title(), this.simpleDateFormat.format(podcast.date()), podcast.episodeUri(),
+				podcast.description());
 	}
 
 	String render(SpringTip tip) {
@@ -131,7 +139,8 @@ record SpringTip(URL blogUrl, Date date, int seasonNumber, String title, String 
 record TalkAbstract(String title, String description) {
 }
 
-record Podcast(String id, String uid, URL episodeUri, URL episodePhotoUri, String description, Date date) {
+record Podcast(String id, String uid, String title, URL episodeUri, URL episodePhotoUri, String description,
+		Date date) {
 }
 
 record Appearance(String event, Date startDate, Date endDate, String time, String marketingBlurb) {
@@ -158,8 +167,8 @@ class DefaultJoshlongService implements JoshlongService {
 			String youtubeEmbedUrl) {
 	}
 
-	private record StringyPodcast(String id, String uid, URL episodeUri, URL episodePhotoUri, String description,
-			String date) {
+	private record StringyPodcast(String id, String uid, String title, URL episodeUri, URL episodePhotoUri,
+			String description, String date) {
 	}
 
 	@Override
@@ -222,12 +231,14 @@ class DefaultJoshlongService implements JoshlongService {
 				    episodePhotoUri
 				    description
 				    date
+				    title
 				  }
 				}
 				""";
 		return client.document(podcasts)//
 				.retrieve("podcasts")//
-				.toEntityList(StringyPodcast.class).map(list -> list.stream()//
+				.toEntityList(StringyPodcast.class)//
+				.map(list -> list.stream()//
 						.map(DefaultJoshlongService::fromStringyPodcast)//
 						.collect(Collectors.toList()))
 				.flatMapMany(Flux::fromIterable);
@@ -285,8 +296,8 @@ class DefaultJoshlongService implements JoshlongService {
 	}
 
 	private static Podcast fromStringyPodcast(StringyPodcast podcast) {
-		return new Podcast(podcast.id(), podcast.uid(), podcast.episodeUri(), podcast.episodePhotoUri(),
-				podcast.description(), buildDateFrom(podcast.date()));
+		return new Podcast(podcast.id(), podcast.uid(), podcast.title(), podcast.episodeUri(),
+				podcast.episodePhotoUri(), podcast.description(), buildDateFrom(podcast.date()));
 	}
 
 	@SneakyThrows
