@@ -1,5 +1,6 @@
-package com.example.feedprocessorv2;
+package com.joshlong.client.render;
 
+import com.joshlong.client.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,9 +11,9 @@ import java.util.Date;
 import java.util.List;
 
 @Slf4j
-class JoshlongMarkdownRendererTest {
+class DefaultJoshLongMarkupRendererTest {
 
-	private final JoshlongMarkdownRenderer renderer = new JoshlongMarkdownRenderer();
+	private final JoshLongMarkupRenderer renderer = new DefaultJoshLongMarkupRenderer();
 
 	private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 

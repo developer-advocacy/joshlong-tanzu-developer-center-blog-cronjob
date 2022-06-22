@@ -1,4 +1,4 @@
-package com.example.feedprocessorv2;
+package com.joshlong.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -11,34 +11,34 @@ import java.util.function.Predicate;
 
 @Slf4j
 @SpringBootTest
-class JoshlongServiceTest {
+class JoshLongClientTest {
 
-	private final JoshlongService service;
+	private final JoshLongClient service;
 
-	JoshlongServiceTest(@Autowired JoshlongService service) {
+	JoshLongClientTest(@Autowired JoshLongClient service) {
 		this.service = service;
 	}
 
 	@Test
-	void blogs() throws Exception {
+	void blogs() {
 		var blogs = this.service.getBlogPosts();
-		StepVerifier.create(blogs.take(1))
-				.expectNextMatches(bp -> bp.published() != null && StringUtils.hasText(bp.title())).verifyComplete();
+		StepVerifier.create(blogs.take(1))//
+				.expectNextMatches(bp -> bp.published() != null && StringUtils.hasText(bp.title()))//
+				.verifyComplete();
 	}
 
 	@Test
-	void abstracts() throws Exception {
-		var abstracts = this.service.getAbstracts()//
-				.doOnNext(anAbstract -> log
-						.info(anAbstract.title() + "\n" + anAbstract.description() + "\n" + "\n" + "\n"));
-		StepVerifier.create(abstracts).expectNextCount(13).verifyComplete();
+	void abstracts() {
+		var abstracts = this.service.getAbstracts().take(2);
+		StepVerifier.create(abstracts)//
+				.expectNextMatches(ta -> StringUtils.hasText(ta.title()) && StringUtils.hasText(ta.description()))
+				.expectNextCount(1).verifyComplete();
 	}
 
 	@Test
 	void springTips() throws Exception {
 		var springTips = this.service.getSpringTips();
-		StepVerifier//
-				.create(springTips.take(1))//
+		StepVerifier.create(springTips.take(1))//
 				.expectNextMatches(springTip -> springTip.date() != null && StringUtils.hasText(springTip.title())
 						&& springTip.blogUrl() != null && springTip.youtubeEmbedUrl() != null)
 				.verifyComplete();
