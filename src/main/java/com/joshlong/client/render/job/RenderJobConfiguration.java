@@ -34,8 +34,8 @@ class RenderJobConfiguration {
 			for (var e : sections.entrySet())
 				renderedOutput.add(renderer.renderGroup(e.getKey(), e.getValue()));
 			var html = (renderedOutput.stream().collect(Collectors.joining(System.lineSeparator())));
-			try (var fout = new BufferedWriter(new FileWriter(file))) {
-				fout.write(html);
+			try (var bufferedWriter = new BufferedWriter(new FileWriter(file))) {
+				bufferedWriter.write(html);
 			}
 		};
 	}
