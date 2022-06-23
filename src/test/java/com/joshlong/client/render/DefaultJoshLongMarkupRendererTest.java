@@ -19,16 +19,17 @@ class DefaultJoshLongMarkupRendererTest {
 
 	@Test
 	void renderGroup() throws Exception {
+		var date = simpleDateFormat.parse("2022-06-21");
 		var accumulatedMd = this.renderer.renderGroup("Podcasts",
 				List.of(new Podcast("id1", "uid1", "title1", new URL("http://episode1.com"),
-						new URL("http://photo1.com"), "description1", new Date()),
+						new URL("http://photo1.com"), "description1", date),
 						new Podcast("id2", "uid2", "title2", new URL("http://episode2.com"),
-								new URL("http://photo2.com"), "description2", new Date())));
+								new URL("http://photo2.com"), "description2", date)));
 		log.info("md: " + accumulatedMd);
 		var html = this.renderer.renderMarkdownAsHtml(accumulatedMd);
 		log.info("html: " + html);
-		Assertions.assertTrue(html.contains("<p>description2</p>"));
-		Assertions.assertTrue(html.contains("<p>description1</p>"));
+		Assertions.assertTrue(html.contains("</a> description2</p>"));
+		Assertions.assertTrue(html.contains("</a> description1</p>"));
 		Assertions.assertTrue(html.contains("<h3>title2</h3>"));
 		Assertions.assertTrue(html.contains("<h3>title1</h3>"));
 		Assertions.assertTrue(html.contains("<strong>2022-06-21</strong>"));
@@ -40,8 +41,9 @@ class DefaultJoshLongMarkupRendererTest {
 				this.simpleDateFormat.parse("2022-03-16"), "the description");
 		var md = this.renderer.render(blogPost);
 		var html = this.renderer.renderMarkdownAsHtml(md);
-		Assertions.assertTrue(html.contains("<h3>the title</h3>"));
-		Assertions.assertTrue(html.contains("<p>the description</p>"));
+		log.info("html: " + html);
+		Assertions.assertTrue(
+				html.contains("<li><a href=\"http://www.google.com\">the title</a> (2022-03-16) the description</li>"));
 	}
 
 	@Test
@@ -62,8 +64,8 @@ class DefaultJoshLongMarkupRendererTest {
 		var stMd = this.renderer.render(st);
 		var stHtml = this.renderer.renderMarkdownAsHtml(stMd);
 		log.info("html: " + stHtml);
-		Assertions.assertTrue(stHtml.contains("<h3>The spring tips title</h3>"));
-		Assertions.assertTrue(stHtml.contains("<p><strong>2022-06-21</strong></p>"));
+		Assertions.assertTrue(stHtml.contains(
+				"<h3>2022-06-21 - <a href=\"http://youtube.com/springtips/1\">The spring tips title</a></h3>"));
 	}
 
 	@Test
@@ -78,7 +80,6 @@ class DefaultJoshLongMarkupRendererTest {
 		Assertions.assertTrue(podcastHtml.contains("""
 				<a href="http://applepodcasts.com">listen</a>
 				""".trim().strip().stripIndent().stripLeading().stripTrailing()));
-		Assertions.assertTrue(podcastHtml.contains("<p>this is a description</p>"));
 		Assertions.assertTrue(podcastHtml.contains(sourceDate));
 	}
 
@@ -90,9 +91,10 @@ class DefaultJoshLongMarkupRendererTest {
 		var description = "Hi, Spring fans! It's going to be an amazing time as I return to fabulous Berlin, Germany, for a quick look at the latest-and-greatest";
 		var md = this.renderer.render(new Appearance(eventTitle, now, later, "", description.strip()));
 		var html = this.renderer.renderMarkdownAsHtml(md);
+		log.info("html: " + html);
 		Assertions.assertTrue(html.contains("<h3>" + eventTitle + "</h3>"));
-		Assertions.assertTrue(html.contains("<p><strong>2022-06-21</strong></p>"));
-		Assertions.assertTrue(html.contains("<p>" + description + "</p>"));
+		Assertions.assertTrue(html.contains("<p><strong>2022-06-21</strong>"));
+		Assertions.assertTrue(html.contains("</strong> - " + description + "</p>"));
 	}
 
 }
