@@ -1,16 +1,12 @@
 package com.joshlong.client.render;
 
 import com.joshlong.client.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface JoshLongMarkupRenderer {
 
 	<T> String renderGroup(String title, List<T> list);
-
-	Mono<String> renderGroup(String title, Flux<?> list);
 
 	String renderMarkdownAsHtml(String markdown);
 

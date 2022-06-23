@@ -12,6 +12,10 @@ import reactor.core.publisher.Flux;
 
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,8 +45,11 @@ class DefaultJoshLongClient implements JoshLongClient {
 	}
 
 	@Override
-	public List<BlogPost> getBlogPosts() {
-		return this.posts;
+	public List<BlogPost> getBlogPosts(int count) {
+		return this.posts.stream()//
+				.limit(count)//
+				.sorted(Comparator.comparing(BlogPost::published).reversed())//
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -54,11 +61,14 @@ class DefaultJoshLongClient implements JoshLongClient {
 				.document(query) //
 				.retrieve("abstracts")//
 				.toEntity(String.class);
-		return results.flatMapMany(html -> Flux.fromIterable(parseAbstracts(html))).collectList().block();
+		return results//
+				.flatMapMany(html -> Flux.fromIterable(parseAbstracts(html)))//
+				.collectList()//
+				.block();
 	}
 
 	@Override
-	public List<SpringTip> getSpringTips() {
+	public List<SpringTip> getSpringTips(int count) {
 		var query = """
 				query {
 				  springTipsEpisodes {
@@ -70,30 +80,33 @@ class DefaultJoshLongClient implements JoshLongClient {
 				.document(query)//
 				.retrieve("springTipsEpisodes")//
 				.toEntityList(DefaultJoshLongClient.StringySpringTip.class)//
-				.flatMapMany(list -> Flux.fromIterable(buildSpringTipsList(list)))//
+				.flatMapMany(list -> Flux.fromIterable(buildSpringTipsList(count, list)))//
 				.collectList() //
 				.block();
 	}
 
 	@Override
-	public List<Appearance> getAppearances() {
+	public List<Appearance> getAppearances(int count) {
 		var query = """
 				{ appearances { event, startDate, endDate, time, marketingBlurb } }
 				""";
+		var sevenDaysAgo = Instant.now().minus(Duration.ofDays(7));
+		var ldt = Date.from(sevenDaysAgo);
 		var stringy = client //
 				.document(query)//
 				.retrieve("appearances") //
 				.toEntityList(DefaultJoshLongClient.StringyAppearance.class) //
 				.map(sa -> sa.stream()//
 						.map(DefaultJoshLongClient::fromStringAppearance) //
-						.sorted(Comparator.comparing(Appearance::startDate))//
-						.toList()//
+						.takeWhile(appearance -> appearance.startDate().after(ldt))
+						.sorted(Comparator.comparing(Appearance::startDate).reversed())//
+						.limit(count).sorted(Comparator.comparing(Appearance::startDate)).toList()//
 				);
 		return stringy.flatMapMany(Flux::fromIterable).collectList().block();
 	}
 
 	@Override
-	public List<Podcast> getPodcasts() {
+	public List<Podcast> getPodcasts(int count) {
 		var podcasts = """
 				{
 				  podcasts {
@@ -109,15 +122,17 @@ class DefaultJoshLongClient implements JoshLongClient {
 				""";
 		return client.document(podcasts)//
 				.retrieve("podcasts")//
-				.toEntityList(DefaultJoshLongClient.StringyPodcast.class)//
+				.toEntityList(StringyPodcast.class)//
 				.map(list -> list.stream()//
 						.map(DefaultJoshLongClient::fromStringyPodcast)//
+						.sorted(Comparator.comparing(Podcast::date).reversed()).limit(count) //
 						.collect(Collectors.toList())) //
 				.flatMapMany(Flux::fromIterable) //
 				.collectList().block();
 	}
 
-	private static List<SpringTip> buildSpringTipsList(List<DefaultJoshLongClient.StringySpringTip> stringySpringTips) {
+	private static List<SpringTip> buildSpringTipsList(int count,
+			List<DefaultJoshLongClient.StringySpringTip> stringySpringTips) {
 		return stringySpringTips//
 				.stream()//
 				.map(st -> new SpringTip(//
@@ -128,7 +143,8 @@ class DefaultJoshLongClient implements JoshLongClient {
 						st.youtubeId(), //
 						buildUrlFrom(st.youtubeEmbedUrl())//
 				))//
-				.sorted(Comparator.comparing(SpringTip::date))//
+				.sorted(Comparator.comparing(SpringTip::date).reversed())//
+				.limit(count) //
 				.toList();
 	}
 
@@ -188,7 +204,7 @@ class DefaultJoshLongClient implements JoshLongClient {
 			var feed = new SyndFeedInput().build(is);
 			return feed.getEntries().stream()
 					.filter(se -> se.getAuthors().stream().anyMatch(s -> s.getName().contains("Josh Long")))
-					.map(se -> new BlogPost(se.getTitle(), se.getUpdatedDate(), ""))
+					.map(se -> new BlogPost(se.getTitle(), buildUrlFrom(se.getLink()), se.getUpdatedDate(), ""))
 					.sorted(Comparator.comparing(BlogPost::published).reversed()).toList();
 		}
 	}

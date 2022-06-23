@@ -1,19 +1,17 @@
 package com.joshlong.client;
 
-import reactor.core.publisher.Flux;
-
 import java.util.List;
 
 public interface JoshLongClient {
 
-	List<BlogPost> getBlogPosts();
+	List<BlogPost> getBlogPosts(int count);
 
-	List<SpringTip> getSpringTips();
+	List<SpringTip> getSpringTips(int count);
 
 	List<TalkAbstract> getAbstracts();
 
-	List<Appearance> getAppearances();
+	List<Appearance> getAppearances(int count);
 
-	List<Podcast> getPodcasts();
+	List<Podcast> getPodcasts(int count);
 
 }

@@ -4,8 +4,6 @@ import com.joshlong.client.*;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,7 +17,6 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 
 	@Override
 	public <T> String renderGroup(String title, List<T> list) {
-
 		var accumulatedMd = list//
 				.stream()//
 				.map(o -> {
@@ -35,18 +32,12 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 						return render(ta);
 					throw new RuntimeException("can't render the type, " + o.getClass().getName() + "!");
 				})//
-				.collect(Collectors.joining(System.lineSeparator() + System.lineSeparator()));
+				.collect(Collectors.joining(System.lineSeparator()));
 		return String.format("""
 				## %s
 
 				%s
 				""", title, accumulatedMd);
-	}
-
-	@Override
-	public Mono<String> renderGroup(String title, Flux<?> list) {
-		return list.collectList()//
-				.flatMap(objects -> this.renderGroup(title, list));
 	}
 
 	@Override
@@ -64,10 +55,7 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 		var blurb = appearance.marketingBlurb();
 		var md = """
 				### %s
-
-				**%s**
-
-				%s
+				**%s** - %s
 				""";
 		return String.format(md, event, renderDate(start), blurb);
 	}
@@ -76,36 +64,26 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 	public String render(Podcast podcast) {
 		var md = """
 				### %s
-				**%s**
-
-				[listen](%s)
-
-				%s
+				**%s** [listen](%s) %s
 				""";
 		return String.format(md, podcast.title(), this.simpleDateFormat.format(podcast.date()), podcast.episodeUri(),
-				podcast.description());
+				podcast.description().trim().stripIndent());
 	}
 
 	@Override
 	public String render(SpringTip tip) {
-		var url = tip.blogUrl();
 		var title = tip.title();
-		var seasonNo = tip.seasonNumber();
-		var ytUrl = tip.youtubeEmbedUrl();
 		var date = tip.date();
-		var ytUrlHtml = String
+		var youtubeHtml = String
 				.format("""
 						<iframe width="560" height="315" src="%s" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 						"""
 						.strip().trim().stripIndent(), tip.youtubeEmbedUrl());
 		var md = """
-				### %s
-
-				**%s**
-
+				### %s - [%s](%s)
 				%s
 				""";
-		return String.format(md, title, this.simpleDateFormat.format(date), ytUrlHtml);
+		return String.format(md, this.simpleDateFormat.format(date), title, tip.blogUrl(), youtubeHtml);
 	}
 
 	@Override
@@ -119,13 +97,10 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 
 	@Override
 	public String render(BlogPost post) {
+		var dateString = this.simpleDateFormat.format(post.published());
 		return String.format("""
-				### %s
-
-				**%s**
-
-				%s
-				""", post.title(), this.simpleDateFormat.format(post.published()), post.description());
+				* [%s](%s) (%s) %s
+				""".stripIndent().trim(), post.title(), post.url(), dateString, post.description());
 	}
 
 	private String renderDate(Date date) {

@@ -8,7 +8,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -22,20 +21,22 @@ class RenderJobConfiguration {
 
 	@Bean
 	ApplicationRunner renderJobRunner(JoshLongClient client, JoshLongMarkupRenderer renderer,
-			@Value("${joshlong.tdp.output-markdown-path}") File file) {
+			@Value("${joshlong.tdp.output-markdown-path}") File md,
+			@Value("${joshlong.tdp.output-html-path}") File html) {
 		return args -> {
+			var max = 10;
 			var sections = new LinkedHashMap<String, List<?>>();
-			sections.put("Podcasts", client.getPodcasts());
+			sections.put("Recent Podcasts", client.getPodcasts(max));
+			sections.put("Upcoming Appearances", client.getAppearances(max));
+			sections.put("Recent Spring Tips", client.getSpringTips(max));
+			sections.put("Recent Blog Posts", client.getBlogPosts(max));
 			sections.put("Abstracts", client.getAbstracts());
-			sections.put("Appearances", client.getAppearances());
-			sections.put("Spring Tips", client.getSpringTips());
-			sections.put("Blog Posts", client.getBlogPosts());
 			var renderedOutput = new ArrayList<String>();
-			for (var e : sections.entrySet())
-				renderedOutput.add(renderer.renderGroup(e.getKey(), e.getValue()));
-			var html = (renderedOutput.stream().collect(Collectors.joining(System.lineSeparator())));
-			try (var bufferedWriter = new BufferedWriter(new FileWriter(file))) {
-				bufferedWriter.write(html);
+			sections.forEach((k, v) -> renderedOutput.add(renderer.renderGroup(k, v)));
+			var output = renderedOutput.stream().collect(Collectors.joining(System.lineSeparator()));
+			try (var mdBW = new FileWriter(md); var htmlBW = new FileWriter(html)) {
+				mdBW.write(output);
+				htmlBW.write(renderer.renderMarkdownAsHtml(output));
 			}
 		};
 	}
