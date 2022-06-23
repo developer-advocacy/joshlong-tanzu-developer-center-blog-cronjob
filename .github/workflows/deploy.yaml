@@ -6,6 +6,7 @@ env:
   BLOG_INDEX_REBUILD_KEY: ${{  secrets.BLOG_INDEX_REBUILD_KEY }}
   GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GH_PAT: ${{ secrets.GH_PAT }}
 
 on:
   push:
