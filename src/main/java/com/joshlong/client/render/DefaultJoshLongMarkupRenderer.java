@@ -105,7 +105,7 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 
 	private String renderDate(Date date) {
 		synchronized (this.simpleDateFormat) {
-			return simpleDateFormat.format(date);
+			return this.simpleDateFormat.format(date);
 		}
 	}
 
