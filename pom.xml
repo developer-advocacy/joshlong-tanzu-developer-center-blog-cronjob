@@ -29,12 +29,7 @@
             <artifactId>rome</artifactId>
             <version>1.18.0</version>
         </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <version>${netty.version}</version>
-            <classifier>osx-aarch_64</classifier>
-            <artifactId>netty-resolver-dns-native-macos</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.commonmark</groupId>
             <artifactId>commonmark</artifactId>
@@ -70,8 +65,16 @@
             <artifactId>spring-graphql-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--<dependency>
+            <groupId>io.netty</groupId>
+            <version>${netty.version}</version>
+            <classifier>osx-aarch_64</classifier>
+            <artifactId>netty-resolver-dns-native-macos</artifactId>
+        </dependency>-->
     </dependencies>
+<profiles>
 
+</profiles>
     <build>
         <plugins>
             <plugin>

@@ -106,7 +106,8 @@ class DefaultJoshLongClient implements JoshLongClient {
 				  }
 				}
 				""";
-		return client.document(podcasts)//
+		return client//
+				.document(podcasts)//
 				.retrieve("podcasts")//
 				.toEntityList(StringyPodcast.class)//
 				.map(list -> list.stream()//
@@ -114,7 +115,8 @@ class DefaultJoshLongClient implements JoshLongClient {
 						.sorted(Comparator.comparing(Podcast::date).reversed()).limit(count) //
 						.collect(Collectors.toList())) //
 				.flatMapMany(Flux::fromIterable) //
-				.collectList().block();
+				.collectList()//
+				.block();
 	}
 
 	private static List<SpringTip> buildSpringTipsList(int count, List<StringySpringTip> stringySpringTips) {
@@ -212,15 +214,15 @@ class DefaultJoshLongClient implements JoshLongClient {
 		return null;
 	}
 
-}
+	record StringyAppearance(String event, String startDate, String endDate, String time, String marketingBlurb) {
+	}
 
-record StringyAppearance(String event, String startDate, String endDate, String time, String marketingBlurb) {
-}
+	record StringySpringTip(String blogUrl, String date, int seasonNumber, String title, String youtubeId,
+			String youtubeEmbedUrl) {
+	}
 
-record StringySpringTip(String blogUrl, String date, int seasonNumber, String title, String youtubeId,
-		String youtubeEmbedUrl) {
-}
+	record StringyPodcast(String id, String uid, String title, URL episodeUri, URL episodePhotoUri, String description,
+			String date) {
+	}
 
-record StringyPodcast(String id, String uid, String title, URL episodeUri, URL episodePhotoUri, String description,
-		String date) {
 }
