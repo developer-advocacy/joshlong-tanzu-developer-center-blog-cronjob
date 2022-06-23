@@ -14,8 +14,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,18 +28,6 @@ class DefaultJoshLongClient implements JoshLongClient {
 	DefaultJoshLongClient(HttpGraphQlClient client) {
 		this.client = client;
 		this.posts = this.initFeed();
-	}
-
-	private record StringyAppearance(String event, String startDate, String endDate, String time,
-			String marketingBlurb) {
-	}
-
-	private record StringySpringTip(String blogUrl, String date, int seasonNumber, String title, String youtubeId,
-			String youtubeEmbedUrl) {
-	}
-
-	private record StringyPodcast(String id, String uid, String title, URL episodeUri, URL episodePhotoUri,
-			String description, String date) {
 	}
 
 	@Override
@@ -79,7 +65,7 @@ class DefaultJoshLongClient implements JoshLongClient {
 		return this.client//
 				.document(query)//
 				.retrieve("springTipsEpisodes")//
-				.toEntityList(DefaultJoshLongClient.StringySpringTip.class)//
+				.toEntityList(StringySpringTip.class)//
 				.flatMapMany(list -> Flux.fromIterable(buildSpringTipsList(count, list)))//
 				.collectList() //
 				.block();
@@ -95,7 +81,7 @@ class DefaultJoshLongClient implements JoshLongClient {
 		var stringy = client //
 				.document(query)//
 				.retrieve("appearances") //
-				.toEntityList(DefaultJoshLongClient.StringyAppearance.class) //
+				.toEntityList(StringyAppearance.class) //
 				.map(sa -> sa.stream()//
 						.map(DefaultJoshLongClient::fromStringAppearance) //
 						.takeWhile(appearance -> appearance.startDate().after(ldt))
@@ -131,8 +117,7 @@ class DefaultJoshLongClient implements JoshLongClient {
 				.collectList().block();
 	}
 
-	private static List<SpringTip> buildSpringTipsList(int count,
-			List<DefaultJoshLongClient.StringySpringTip> stringySpringTips) {
+	private static List<SpringTip> buildSpringTipsList(int count, List<StringySpringTip> stringySpringTips) {
 		return stringySpringTips//
 				.stream()//
 				.map(st -> new SpringTip(//
@@ -187,12 +172,12 @@ class DefaultJoshLongClient implements JoshLongClient {
 		return list;
 	}
 
-	private static Appearance fromStringAppearance(DefaultJoshLongClient.StringyAppearance appearance) {
+	private static Appearance fromStringAppearance(StringyAppearance appearance) {
 		return new Appearance(appearance.event(), buildDateFrom(appearance.startDate()),
 				buildDateFrom(appearance.endDate()), appearance.time(), appearance.marketingBlurb());
 	}
 
-	private static Podcast fromStringyPodcast(DefaultJoshLongClient.StringyPodcast podcast) {
+	private static Podcast fromStringyPodcast(StringyPodcast podcast) {
 		return new Podcast(podcast.id(), podcast.uid(), podcast.title(), podcast.episodeUri(),
 				podcast.episodePhotoUri(), podcast.description(), buildDateFrom(podcast.date()));
 	}
@@ -227,4 +212,15 @@ class DefaultJoshLongClient implements JoshLongClient {
 		return null;
 	}
 
+}
+
+record StringyAppearance(String event, String startDate, String endDate, String time, String marketingBlurb) {
+}
+
+record StringySpringTip(String blogUrl, String date, int seasonNumber, String title, String youtubeId,
+		String youtubeEmbedUrl) {
+}
+
+record StringyPodcast(String id, String uid, String title, URL episodeUri, URL episodePhotoUri, String description,
+		String date) {
 }

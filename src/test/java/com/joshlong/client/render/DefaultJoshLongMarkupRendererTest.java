@@ -36,7 +36,8 @@ class DefaultJoshLongMarkupRendererTest {
 
 	@Test
 	void blogPost() throws Exception {
-		var blogPost = new BlogPost("the title", this.simpleDateFormat.parse("2022-03-16"), "the description");
+		var blogPost = new BlogPost("the title", new URL("http://www.google.com"),
+				this.simpleDateFormat.parse("2022-03-16"), "the description");
 		var md = this.renderer.render(blogPost);
 		var html = this.renderer.renderMarkdownAsHtml(md);
 		Assertions.assertTrue(html.contains("<h3>the title</h3>"));
