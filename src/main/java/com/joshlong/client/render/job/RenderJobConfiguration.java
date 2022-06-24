@@ -4,6 +4,7 @@ import com.joshlong.client.JoshLongClient;
 import com.joshlong.client.render.JoshLongMarkupRenderer;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -16,10 +17,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,12 +35,12 @@ class RenderJobConfiguration {
 			@Value("${joshlong.gitub.repository}") URL githubRepository,
 			@Value("${joshlong.github.clone-path}") File clonePath) {
 		return args -> {
-			this.render(client, renderer, md, html);
-			this.commit(clonePath, username, pat, githubRepository);
+			var files = this.render(client, renderer);
+			this.commit(files, clonePath, username, pat, githubRepository);
 		};
 	}
 
-	private void render(JoshLongClient client, JoshLongMarkupRenderer renderer, File md, File html) throws IOException {
+	private Map<String, String> render(JoshLongClient client, JoshLongMarkupRenderer renderer) throws IOException {
 		var max = 10;
 		var sections = new LinkedHashMap<String, List<?>>();
 		sections.put("Recent Podcasts", client.getPodcasts(max));
@@ -50,14 +51,11 @@ class RenderJobConfiguration {
 		var renderedOutput = new ArrayList<String>();
 		sections.forEach((k, v) -> renderedOutput.add(renderer.renderGroup(k, v)));
 		var output = renderedOutput.stream().collect(Collectors.joining(System.lineSeparator()));
-		try (var mdBW = new FileWriter(md); var htmlBW = new FileWriter(html)) {
-			mdBW.write(output);
-			htmlBW.write(renderer.renderMarkdownAsHtml(output));
-		}
+		return Map.of("html", renderer.renderMarkdownAsHtml(output), "md", output);
 	}
 
-	private void commit(File clonePath, String username, String personalAccessToken, URL githubRepository)
-			throws Exception {
+	private void commit(Map<String, String> files, File clonePath, String username, String personalAccessToken,
+			URL githubRepository) throws Exception {
 
 		Assert.isTrue(!clonePath.exists() || FileSystemUtils.deleteRecursively(clonePath),
 				"the directory " + clonePath.getAbsolutePath() + " should not exist");
@@ -67,17 +65,23 @@ class RenderJobConfiguration {
 				.setBranch(outputBranchName).call();
 		log.info("git clone...");
 
-		var file = new File(clonePath, "test.txt");
-		if (file.exists()) {
-			file.delete();
-		}
-		try (var fout = new FileWriter(file)) {
-			fout.write("Hello, world @ " + Instant.now().toString());
-		}
 		var coCall = git.checkout().setName(outputBranchName).call();
 		log.info("git co..." + coCall.getName());
-		git.add().addFilepattern(file.getName()).call();
-		log.info("git add " + file.getName());
+
+		files.forEach((ext, content) -> {
+			var fileForMarkup = new File(clonePath, "joshlong-feed." + ext);
+			if (fileForMarkup.exists())
+				fileForMarkup.delete();
+			try (var fileWriter = new FileWriter(fileForMarkup)) {
+				fileWriter.write(content);
+				git.add().addFilepattern(fileForMarkup.getName()).call();
+				log.info("git add " + fileForMarkup.getName());
+			} //
+			catch (IOException | GitAPIException e) {
+				throw new RuntimeException("there's been an exception");
+			}
+		});
+
 		git.commit().setMessage("updating the test file...").call();
 		log.info("git commit -am messages");
 		git.push().setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, personalAccessToken))
