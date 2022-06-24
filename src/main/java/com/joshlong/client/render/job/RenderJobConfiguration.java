@@ -78,7 +78,7 @@ class RenderJobConfiguration {
 				log.info("git add " + fileForMarkup.getName());
 			} //
 			catch (IOException | GitAPIException e) {
-				throw new RuntimeException("there's been an exception");
+				throw new RuntimeException("there's been an exception", e);
 			}
 		});
 
