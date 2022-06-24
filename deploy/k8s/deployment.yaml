@@ -31,3 +31,23 @@ spec:
               memory: "2Gi"
             requests:
               memory: "2Gi"
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: activity-feed-cronjob
+spec:
+  schedule: "10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: activity-feed-cronjob-container
+              image: gcr.io/bootiful/twi-feed-ingest-job:latest
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: activity-feed-cronjob-configmap
+          restartPolicy: OnFailure

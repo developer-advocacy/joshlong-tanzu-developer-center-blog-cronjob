@@ -88,11 +88,14 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 
 	@Override
 	public String render(TalkAbstract talkAbstract) {
-		return String.format("""
+		var ta = String.format("""
 				### %s
 
 				%s
+
 				""", talkAbstract.title(), talkAbstract.description());
+		System.out.println(talkAbstract.description());
+		return ta;
 	}
 
 	@Override
