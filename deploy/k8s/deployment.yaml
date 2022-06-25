@@ -1,37 +1,3 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: feed-processor-v2
-  name: feed-processor-v2
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: feed-processor-v2
-  template:
-    metadata:
-      labels:
-        app: feed-processor-v2
-    spec:
-      containers:
-        - image: gcr.io/bootiful/feed-processor-v2
-          imagePullPolicy: Always
-          name: feed-processor-v2
-          env:
-            - name: GH_PAT
-              valueFrom:
-                secretKeyRef:
-                  name: feed-processor-v2-secrets
-                  key: GH_PAT
-            - name: LANG
-              value: "en_US.UTF-8"
-          resources:
-            limits:
-              memory: "2Gi"
-            requests:
-              memory: "2Gi"
-
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -45,9 +11,9 @@ spec:
         spec:
           containers:
             - name: activity-feed-cronjob-container
-              image: gcr.io/bootiful/twi-feed-ingest-job:latest
+              image: gcr.io/bootiful/feed-processor-v2:latest
               imagePullPolicy: Always
               envFrom:
-                - configMapRef:
-                    name: activity-feed-cronjob-configmap
+                - secretRef:
+                    name: feed-processor-v2-secrets
           restartPolicy: OnFailure
