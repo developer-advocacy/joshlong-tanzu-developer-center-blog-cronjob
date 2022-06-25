@@ -7,11 +7,10 @@ export SECRETS=${APP_NAME}-secrets
 export SECRETS_FN=$HOME/${SECRETS}
 export IMAGE_NAME=gcr.io/${PROJECT_ID}/${APP_NAME}
 
-
-#docker rmi -f $IMAGE_NAME
-#cd $ROOT_DIR
-#./mvnw -DskipTests=true spring-javaformat:apply clean package spring-boot:build-image -Dspring-boot.build-image.imageName=$IMAGE_NAME
-#docker push $IMAGE_NAME
+docker rmi -f $IMAGE_NAME
+cd $ROOT_DIR
+./mvnw -DskipTests=true spring-javaformat:apply clean package spring-boot:build-image -Dspring-boot.build-image.imageName=$IMAGE_NAME
+docker push $IMAGE_NAME
 
 echo $IMAGE_NAME
 
