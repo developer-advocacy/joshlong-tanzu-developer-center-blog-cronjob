@@ -7,7 +7,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty(name = "tdc.activity.enabled", havingValue = "true", matchIfMissing = true)
 class ActivityFeedRenderJobConfiguration {
 
 	@Bean

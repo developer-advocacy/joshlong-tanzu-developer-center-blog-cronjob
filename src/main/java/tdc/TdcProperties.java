@@ -8,9 +8,9 @@ import java.net.URI;
 @ConfigurationProperties(prefix = "tdc")
 public record TdcProperties(Activity activity, Blog blog) {
 
-	public record Activity(int recentCount, URI githubFeedRepository, File localClonePath) {
+	public record Activity(boolean enabled, int recentCount, URI githubFeedRepository, File localClonePath) {
 	}
 
-	public record Blog(File localClonePath) {
+	public record Blog(boolean enabled, int recentCount, File localClonePath) {
 	}
 }
