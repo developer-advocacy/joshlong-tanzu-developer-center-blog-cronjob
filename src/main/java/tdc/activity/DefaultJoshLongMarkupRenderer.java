@@ -1,6 +1,6 @@
-package com.joshlong.client.render;
+package tdc.activity;
 
-import com.joshlong.client.*;
+import joshlong.client.*;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.stereotype.Component;

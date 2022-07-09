@@ -1,5 +1,8 @@
 package com.joshlong.client;
 
+import joshlong.client.Appearance;
+import joshlong.client.JoshLongClient;
+import joshlong.client.Podcast;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

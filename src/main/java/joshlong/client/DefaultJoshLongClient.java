@@ -1,4 +1,4 @@
-package com.joshlong.client;
+package joshlong.client;
 
 import com.rometools.rome.io.SyndFeedInput;
 import lombok.SneakyThrows;

@@ -1,14 +1,13 @@
-package com.joshlong.client.render.job;
+package tdc.activity;
 
-import com.joshlong.client.JoshLongClient;
-import com.joshlong.client.render.JoshLongMarkupRenderer;
+import joshlong.client.JoshLongClient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.springframework.beans.factory.annotation.Value;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
@@ -27,17 +26,15 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
-class RenderJobConfiguration {
+@EnableConfigurationProperties(ActivityFeedProperties.class)
+class ActivityFeedRenderJobConfiguration {
 
 	@Bean
-	ApplicationRunner renderJobRunner(JoshLongClient client, JoshLongMarkupRenderer renderer,
-			@Value("${joshlong.recent-count}") int recentCount, @Value("${joshlong.github.username}") String username,
-			@Value("${joshlong.github.personal-access-token}") String pat,
-			@Value("${joshlong.gitub.repository}") URL githubRepository,
-			@Value("${joshlong.github.clone-path}") File clonePath) {
+	ApplicationRunner activityFeedRunner(CredentialsProvider provider, ActivityFeedProperties properties,
+			JoshLongClient client, JoshLongMarkupRenderer renderer) {
 		return args -> {
-			var files = this.render(recentCount, client, renderer);
-			this.commit(files, clonePath, username, pat, githubRepository);
+			var files = this.render(properties.recentCount(), client, renderer);
+			this.commit(provider, files, properties.localClonePath(), properties.githubFeedRepository().toURL());
 		};
 	}
 
@@ -55,21 +52,17 @@ class RenderJobConfiguration {
 	}
 
 	@SneakyThrows
-	private void commit(Map<String, String> files, File clonePath, String username, String personalAccessToken,
-			URL githubRepository) {
+	private void commit(CredentialsProvider provider, Map<String, String> files, File clonePath, URL githubRepository) {
 		Assert.isTrue(!clonePath.exists() || FileSystemUtils.deleteRecursively(clonePath),
 				"the directory " + clonePath.getAbsolutePath() + " should not exist");
-
 		var outputBranchName = "output";
-
 		var git = Git.cloneRepository()//
 				.setURI(githubRepository.toString())//
+				.setCredentialsProvider(provider)//
 				.setDirectory(clonePath)//
 				.setBranch(outputBranchName)//
 				.call();
-
 		git.checkout().setName(outputBranchName).call();
-
 		var paths = new ArrayList<String>();
 		files.forEach((ext, content) -> {
 			var fileForMarkup = new File(clonePath, "joshlong-feed." + ext);
@@ -89,8 +82,7 @@ class RenderJobConfiguration {
 		});
 		var message = "updating the feed file (" + String.join(", ", paths) + ")";
 		git.commit().setMessage(message).call();
-		git.push().setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, personalAccessToken))
-				.call();
+		git.push().setCredentialsProvider(provider).call();
 		log.info("git commit and push'd!");
 	}
 

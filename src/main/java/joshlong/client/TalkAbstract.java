@@ -1,4 +1,4 @@
-package com.joshlong.client;
+package joshlong.client;
 
 public record TalkAbstract(String title, String description) {
 }

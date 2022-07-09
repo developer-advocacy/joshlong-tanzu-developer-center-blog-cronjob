@@ -1,4 +1,4 @@
-package com.joshlong.client;
+package joshlong.client;
 
 import java.util.List;
 

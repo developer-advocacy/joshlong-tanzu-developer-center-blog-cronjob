@@ -1,6 +1,6 @@
-package com.joshlong.client.render;
+package tdc.activity;
 
-import com.joshlong.client.*;
+import joshlong.client.*;
 
 import java.util.List;
 
