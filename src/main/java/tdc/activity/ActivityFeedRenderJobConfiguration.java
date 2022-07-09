@@ -35,6 +35,7 @@ class ActivityFeedRenderJobConfiguration {
 		return args -> {
 			var files = this.render(properties.recentCount(), client, renderer);
 			this.commit(provider, files, properties.localClonePath(), properties.githubFeedRepository().toURL());
+			log.info("git commit'd and push'd!");
 		};
 	}
 
@@ -83,7 +84,7 @@ class ActivityFeedRenderJobConfiguration {
 		var message = "updating the feed file (" + String.join(", ", paths) + ")";
 		git.commit().setMessage(message).call();
 		git.push().setCredentialsProvider(provider).call();
-		log.info("git commit and push'd!");
+
 	}
 
 }
