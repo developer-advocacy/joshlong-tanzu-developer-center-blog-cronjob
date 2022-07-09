@@ -157,20 +157,6 @@ public class GithubPullRequestClient {
 		return uriPath;
 	}
 
-	private static void log(String message) {
-		if (log.isDebugEnabled())
-			log.debug(message);
-	}
-
-	private static void log(Throwable throwable) {
-		if (log.isDebugEnabled())
-			log.debug("oops!", throwable);
-	}
-
-	/**
-	 * deletes the repository if it already exists. don't want any problems when we later
-	 * try to fork the origin repository.
-	 */
 	@SneakyThrows
 	private static void deleteForkIfRequired(GitHub github, String forkReference) {
 		try {
@@ -184,6 +170,16 @@ public class GithubPullRequestClient {
 		catch (Exception exception) {
 			log(exception);
 		}
+	}
+
+	private static void log(String message) {
+		if (log.isDebugEnabled())
+			log.debug(message);
+	}
+
+	private static void log(Throwable throwable) {
+		if (log.isDebugEnabled())
+			log.debug("oops!", throwable);
 	}
 
 }
