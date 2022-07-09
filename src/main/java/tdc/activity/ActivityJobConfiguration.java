@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,11 +29,18 @@ import java.util.stream.Collectors;
 @Slf4j
 @Configuration
 @ConditionalOnProperty(name = "tdc.activity.enabled", havingValue = "true", matchIfMissing = true)
-class ActivityFeedRenderJobConfiguration {
+class ActivityJobConfiguration {
+
+	private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Bean
-	ApplicationRunner activityFeedRunner(CredentialsProvider provider, TdcProperties properties, JoshLongClient client,
-			JoshLongMarkupRenderer renderer) {
+	ActivityRenderer renderer() {
+		return new ActivityRenderer(this.simpleDateFormat);
+	}
+
+	@Bean
+	ApplicationRunner activityRunner(CredentialsProvider provider, TdcProperties properties, JoshLongClient client,
+			ActivityRenderer renderer) {
 		return args -> {
 			var files = this.render(properties.activity().recentCount(), client, renderer);
 			this.commit(provider, files, properties.activity().localClonePath(),
@@ -41,7 +49,7 @@ class ActivityFeedRenderJobConfiguration {
 		};
 	}
 
-	private Map<String, String> render(int max, JoshLongClient client, JoshLongMarkupRenderer renderer) {
+	private Map<String, String> render(int max, JoshLongClient client, ActivityRenderer renderer) {
 		var sections = new LinkedHashMap<String, List<?>>();
 		sections.put("Recent Podcasts", client.getPodcasts(max));
 		sections.put("Upcoming Appearances", client.getAppearances(max));
@@ -85,7 +93,6 @@ class ActivityFeedRenderJobConfiguration {
 		var message = "updating the feed file (" + String.join(", ", paths) + ")";
 		git.commit().setMessage(message).call();
 		git.push().setCredentialsProvider(provider).call();
-
 	}
 
 }

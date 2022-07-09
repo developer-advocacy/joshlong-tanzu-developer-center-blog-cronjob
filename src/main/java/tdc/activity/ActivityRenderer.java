@@ -1,6 +1,7 @@
 package tdc.activity;
 
 import joshlong.client.*;
+import lombok.RequiredArgsConstructor;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.stereotype.Component;
@@ -11,11 +12,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
+@RequiredArgsConstructor
+class ActivityRenderer {
 
-	private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private final SimpleDateFormat simpleDateFormat;
 
-	@Override
 	public <T> String renderGroup(String title, List<T> list) {
 		var accumulatedMd = list//
 				.stream()//
@@ -40,7 +41,6 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 				""", title, accumulatedMd);
 	}
 
-	@Override
 	public String renderMarkdownAsHtml(String markdown) {
 		var parser = Parser.builder().build();//
 		var document = parser.parse(markdown);//
@@ -48,7 +48,6 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 		return renderer.render(document);
 	}
 
-	@Override
 	public String render(Appearance appearance) {
 		var start = appearance.startDate();
 		var event = appearance.event();
@@ -60,7 +59,6 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 		return String.format(md, event, renderDate(start), blurb);
 	}
 
-	@Override
 	public String render(Podcast podcast) {
 		var md = """
 				### %s
@@ -70,7 +68,6 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 				podcast.description().trim().stripIndent());
 	}
 
-	@Override
 	public String render(SpringTip tip) {
 		var title = tip.title();
 		var date = tip.date();
@@ -86,7 +83,6 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 		return String.format(md, this.simpleDateFormat.format(date), title, tip.blogUrl(), youtubeHtml);
 	}
 
-	@Override
 	public String render(TalkAbstract talkAbstract) {
 		var ta = String.format("""
 				### %s
@@ -98,7 +94,6 @@ class DefaultJoshLongMarkupRenderer implements JoshLongMarkupRenderer {
 		return ta;
 	}
 
-	@Override
 	public String render(BlogPost post) {
 		var dateString = this.simpleDateFormat.format(post.published());
 		return String.format("""
