@@ -5,18 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
-import org.springframework.util.Assert;
-import org.springframework.util.FileCopyUtils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
 
 @Slf4j
 @RequiredArgsConstructor
