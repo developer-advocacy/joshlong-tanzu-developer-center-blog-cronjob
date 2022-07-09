@@ -45,6 +45,7 @@ class BlogPostRunner implements ApplicationRunner {
 	public void run(ApplicationArguments args) throws Exception {
 
 		var pr = this.pullRequestClient.createPullRequest(//
+				branchName -> branchName + "-joshlong", //
 				this.origin, //
 				this.fork, //
 				this.head, //

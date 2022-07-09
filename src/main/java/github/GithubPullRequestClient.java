@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static org.springframework.util.FileSystemUtils.deleteRecursively;
 
@@ -65,8 +66,9 @@ public class GithubPullRequestClient {
 	 * @return a pull request signalling the proposed pull-request
 	 */
 	@SneakyThrows
-	public GHPullRequest createPullRequest(URI originRepo, URI forkRepo, String head, String base,
-			String pullRequestTitle, String pullRequestBody, File cloneDirectory, PullRequestProcessor processor) {
+	public GHPullRequest createPullRequest(Function<String, String> branchNameTransformer, URI originRepo, URI forkRepo,
+			String head, String base, String pullRequestTitle, String pullRequestBody, File cloneDirectory,
+			PullRequestProcessor processor) {
 
 		// delete the fork of the repository if it exists
 		var forkReference = buildValidRepositoryReferenceFrom(forkRepo);
@@ -87,7 +89,7 @@ public class GithubPullRequestClient {
 
 		// manipulate local clone in a new branch
 		var date = new Date();
-		var newBranchName = "proposed-changes-" + buildTimestampFor(date);
+		var newBranchName = branchNameTransformer.apply("pr-" + buildTimestampFor(date));
 		git.branchCreate().setName(newBranchName).call();
 		git.checkout().setName(newBranchName).call();
 		var sendPrQuestion = processor.modifyFileSystem(cloneDirectory, git, date);
