@@ -18,7 +18,7 @@ import java.io.File;
 class BlogJobConfiguration {
 
 	@Bean
-	BlogPostWriter runner() {
+	BlogPostWriter blogPostWriter() {
 		return new BlogPostWriter();
 	}
 
