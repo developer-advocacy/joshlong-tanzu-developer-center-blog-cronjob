@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: activity-feed-cronjob
+  name: tdc-activity-feed-cronjob
 spec:
   schedule: "10 * * * *"
   jobTemplate:
@@ -10,10 +10,10 @@ spec:
       template:
         spec:
           containers:
-            - name: activity-feed-cronjob-container
+            - name: tdc-activity-feed-cronjob-container
               image: gcr.io/bootiful/feed-processor-v2:latest
               imagePullPolicy: Always
               envFrom:
                 - secretRef:
-                    name: feed-processor-v2-secrets
+                    name: tdc-activity-feed-secrets
           restartPolicy: OnFailure
