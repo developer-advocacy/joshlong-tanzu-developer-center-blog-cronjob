@@ -50,15 +50,18 @@ public class GithubPullRequestClient {
 	 * manipulate the filesystem, commit them, then push those changes to a branch and
 	 * then send the changes as a pull-request to the origin repository that was forked.
 	 * @param originRepo the URI of the repo to which you'd like to send a pull-request
+	 * @param branchNameTransformer this function transforms the default branch name into
+	 * a name that might be more appropriate for this particular PR. Especially useful in
+	 * a busy repository with lots of branches.
 	 * @param forkRepo the URI of the repo containing the changes you'd like to send in a
 	 * pull-request
 	 * @param head the name of the user whose forked version of this repository we want to
 	 * draw changes from
 	 * @param base the target to which we want to send the changes
-	 * @param pullRequestTitle what should the title of the pull-request be in the github
-	 * ui?
-	 * @param pullRequestBody what should the body of the pull-request be in the github
-	 * ui?
+	 * @param pullRequestTitle what should the title of the pull-request be in the Github
+	 * UI?
+	 * @param pullRequestBody what should the body of the pull-request be in the Github
+	 * UI?
 	 * @param cloneDirectory the directory to which the forked version of the repository
 	 * should be cloned locally
 	 * @param processor a callback that gives the client a chance to modify the file
