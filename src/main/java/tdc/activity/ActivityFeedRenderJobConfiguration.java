@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
+import tdc.TdcProperties;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,15 +27,15 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
-@EnableConfigurationProperties(ActivityFeedProperties.class)
 class ActivityFeedRenderJobConfiguration {
 
 	@Bean
-	ApplicationRunner activityFeedRunner(CredentialsProvider provider, ActivityFeedProperties properties,
-			JoshLongClient client, JoshLongMarkupRenderer renderer) {
+	ApplicationRunner activityFeedRunner(CredentialsProvider provider, TdcProperties properties, JoshLongClient client,
+			JoshLongMarkupRenderer renderer) {
 		return args -> {
-			var files = this.render(properties.recentCount(), client, renderer);
-			this.commit(provider, files, properties.localClonePath(), properties.githubFeedRepository().toURL());
+			var files = this.render(properties.activity().recentCount(), client, renderer);
+			this.commit(provider, files, properties.activity().localClonePath(),
+					properties.activity().githubFeedRepository().toURL());
 			log.info("git commit'd and push'd!");
 		};
 	}
@@ -79,7 +80,6 @@ class ActivityFeedRenderJobConfiguration {
 			catch (IOException | GitAPIException e) {
 				throw new RuntimeException("there's been an exception", e);
 			}
-
 		});
 		var message = "updating the feed file (" + String.join(", ", paths) + ")";
 		git.commit().setMessage(message).call();
