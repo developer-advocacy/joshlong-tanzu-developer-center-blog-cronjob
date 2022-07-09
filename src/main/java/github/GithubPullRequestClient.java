@@ -75,31 +75,34 @@ public class GithubPullRequestClient {
 
 		// delete the fork of the repository if it exists
 		var forkReference = buildValidRepositoryReferenceFrom(forkRepo);
-		deleteForkIfRequired(github, forkReference);
+		deleteForkIfRequired(this.github, forkReference);
 
 		// fork the origin repository so we have the guaranteed latest, most-up-to-date
 		// repo in which to make our changes
 		var originReference = buildValidRepositoryReferenceFrom(originRepo);
-		var originRepository = github.getRepository(originReference);
+		var originRepository = this.github.getRepository(originReference);
 		originRepository.fork();
 
 		// clone the fork onto local machine so we can manipulate it
 		Assert.isTrue((!cloneDirectory.exists() || deleteRecursively(cloneDirectory)) && !cloneDirectory.exists(),
 				"we can't clone if there's already a fully fleshed");
-		var git = buildGit(forkRepo, cloneDirectory, credentials);
+		var git = buildGit(forkRepo, cloneDirectory, this.credentials);
 		Assert.isTrue(cloneDirectory.exists() && Objects.requireNonNull(cloneDirectory.list()).length > 0,
 				() -> "the directory must be cloned locally");
 
 		// manipulate local clone in a new branch
 		var date = new Date();
-		var newBranchName = branchNameTransformer.apply("pr-" + buildTimestampFor(date));
+		var bn = "pr-" + buildTimestampFor(date);
+		var newBranchName = branchNameTransformer.apply(bn);
+		if (newBranchName == null)
+			newBranchName = bn;
 		git.branchCreate().setName(newBranchName).call();
 		git.checkout().setName(newBranchName).call();
 		var sendPrQuestion = processor.modifyFileSystem(cloneDirectory, git, date);
 		if (sendPrQuestion) {
 			// commit all changes
-			git.push().setPushAll().setCredentialsProvider(credentials).call();
-			Assert.isTrue(github.isCredentialValid(), () -> "the Github repository is valid");
+			git.push().setPushAll().setCredentialsProvider(this.credentials).call();
+			Assert.isTrue(this.github.isCredentialValid(), () -> "the Github repository is valid");
 
 			// send PR
 			var pullRequest = originRepository.createPullRequest(pullRequestTitle, head + ":" + newBranchName, base,
