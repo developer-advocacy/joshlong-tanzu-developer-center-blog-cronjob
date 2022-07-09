@@ -30,7 +30,7 @@ public class GithubPullRequestClient {
 
 	private final UsernamePasswordCredentialsProvider credentials;
 
-	interface PullRequestProcessor {
+	public interface PullRequestProcessor {
 
 		/**
 		 * A callback in which the client can modify the cloned repository
@@ -40,7 +40,7 @@ public class GithubPullRequestClient {
 		 * @throws Throwable feel free to throw your {@link Throwable}s here and the
 		 * framework will handle them centrally.
 		 */
-		void modifyFileSystem(File root, Git git, Date date) throws Throwable;
+		boolean modifyFileSystem(File root, Git git, Date date) throws Throwable;
 
 	}
 
@@ -90,17 +90,20 @@ public class GithubPullRequestClient {
 		var newBranchName = "proposed-changes-" + buildTimestampFor(date);
 		git.branchCreate().setName(newBranchName).call();
 		git.checkout().setName(newBranchName).call();
-		processor.modifyFileSystem(cloneDirectory, git, date);
+		var sendPrQuestion = processor.modifyFileSystem(cloneDirectory, git, date);
+		if (sendPrQuestion) {
+			// commit all changes
+			git.push().setPushAll().setCredentialsProvider(credentials).call();
+			Assert.isTrue(github.isCredentialValid(), () -> "the Github repository is valid");
 
-		// commit all changes
-		git.push().setPushAll().setCredentialsProvider(credentials).call();
-		Assert.isTrue(github.isCredentialValid(), () -> "the Github repository is valid");
-
-		// send PR
-		var pullRequest = originRepository.createPullRequest(pullRequestTitle, head + ":" + newBranchName, base,
-				pullRequestBody, true);
-		log("pull request state? " + pullRequest.toString());
-		return pullRequest;
+			// send PR
+			var pullRequest = originRepository.createPullRequest(pullRequestTitle, head + ":" + newBranchName, base,
+					pullRequestBody, true);
+			log("pull request state? " + pullRequest.toString());
+			return pullRequest;
+		}
+		log.info("not sending a pull-request as nothing has changed. ");
+		return null;
 	}
 
 	private static String buildTimestampFor(Date date) {

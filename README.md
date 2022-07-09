@@ -9,3 +9,6 @@ It's deployed as a `CronJob` on my Kubernetes cluster that runs periodically. Yo
 kubectl create job --from=cronjob/activity-feed-cronjob  activity-feed-cronjob-run-$RANDOM
 ```
 
+##  A Github Personal Access Token 
+
+Make sure when you provision it that the token supports `repo`, `admin:org`, `delete_repo`, and `project`.
