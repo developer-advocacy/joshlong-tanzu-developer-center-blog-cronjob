@@ -127,7 +127,7 @@ public class GithubPullRequestClient {
 		var hour = now.getHour();
 		var minute = now.getMinute();
 		var second = now.getSecond();
-		return String.format("%s_%s_%s_%s_%s_%s", year, month, day, hour, minute, second);
+		return String.format("%s-%s-%s_%s-%s-%s", year, month, day, hour, minute, second);
 	}
 
 	private static Git buildGit(URI repositoryToClone, File localDirectory, CredentialsProvider provider)

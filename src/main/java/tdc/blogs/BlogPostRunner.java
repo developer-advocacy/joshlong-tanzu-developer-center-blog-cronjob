@@ -100,7 +100,7 @@ class BlogPostRunner implements ApplicationRunner {
 	private List<File> writeAllBlogs(File blogContent, Collection<BlogPost> blogs) {
 		var listOfFiles = new ArrayList<File>();
 		for (var blog : blogs) {
-			var fileName = buildBlogPostFileName(blog);
+			var fileName = this.buildBlogPostFileName(blog);
 			var blogFile = new File(blogContent, fileName + ".md");
 			var url = blog.url();
 			if (log.isDebugEnabled()) {
