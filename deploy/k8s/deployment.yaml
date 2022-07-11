@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: tdc-activity-feed-cronjob-container
-              image: gcr.io/bootiful/feed-processor-v2:latest
+              image: gcr.io/bootiful/tdc-activity-feed:latest
               imagePullPolicy: Always
               envFrom:
                 - secretRef:
