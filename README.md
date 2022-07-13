@@ -2,7 +2,7 @@
 
 This is meant to be a logical successor to [the original feed processor](https://github.com/developer-advocacy/feed-processor). 
 
-The program pulls in data from [the GraphQL API for my blog](https://api.joshlong.com/graphiql), and then makes it available as Markdown and HTML in the `developer-advocacy/activity-feed` repository, in the `output` branch. This way, an automatic process in the Tanzu Developer Center can periodically pull in the new feed.   
+The program pulls in data from [the GraphQL API for my blog](https://api.joshlong.com/graphiql), and then makes it available as Markdown and HTML in the `developer-advocacy/activity-feed` repository, in the `output` branch. This way, an automatic process in the [Tanzu Developer Center](https://github.com/vmware-tanzu/tanzu-dev-portal) can periodically pull in the new feed.   
 
 The program also pulls down the latest-and-greatest blogs that [I've written on the official Spring blog](https://spring.io/blog) and submits a Github _pull request_ to the Tanzu Developer Center Github with all the new changes. 
 
@@ -11,6 +11,8 @@ It's deployed as a [`CronJob`](https://kubernetes.io/docs/concepts/workloads/con
 ```shell
 kubectl create job --from=cronjob/activity-feed-cronjob  activity-feed-cronjob-run-$RANDOM
 ```
+
+
 
 ##  A Github Personal Access Token 
 
