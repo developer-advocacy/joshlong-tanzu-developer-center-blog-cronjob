@@ -4,7 +4,6 @@ import joshlong.client.*;
 import lombok.RequiredArgsConstructor;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

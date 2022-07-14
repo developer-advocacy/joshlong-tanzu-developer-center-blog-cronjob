@@ -1,7 +1,5 @@
 package joshlong.client;
 
-import com.rometools.rome.io.SyndFeedInput;
-import feeds.FeedClient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -11,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
