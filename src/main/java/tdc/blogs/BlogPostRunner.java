@@ -52,10 +52,12 @@ class BlogPostRunner implements ApplicationRunner {
 
 	private final BlogPostProducer blogPostProducer;
 
+	private final String branchSuffix;
+
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		var pr = this.pullRequestClient.createPullRequest(//
-				branchName -> branchName + "-joshlong", //
+				branchName -> branchName + this.branchSuffix/* "-joshlong" */, //
 				this.origin, //
 				this.fork, //
 				this.head, //
