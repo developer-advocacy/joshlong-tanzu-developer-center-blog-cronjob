@@ -44,7 +44,8 @@ class BlogJobConfiguration {
 			@SneakyThrows
 			public List<BlogPost> getBlogPosts() {
 				var url = properties.blog().sourceFeed().feed().toURL();
-				return client.getBlogs(url, this.filter, this.transformer);
+				var count = properties.blog().recentCount();
+				return client.getBlogs(url, count, this.filter, this.transformer);
 			}
 
 		}

@@ -14,15 +14,17 @@ import java.util.function.Predicate;
 public class FeedClient {
 
 	@SneakyThrows
-	public <T> List<T> getBlogs(URL url, Predicate<SyndEntry> filter, Function<SyndEntry, T> syndEntryTFunction) {
+	public <T> List<T> getBlogs(URL url, int count, Predicate<SyndEntry> filter,
+			Function<SyndEntry, T> syndEntryTFunction) {
 
 		try (var in = url.openStream(); var is = new InputStreamReader(in)) {
 			var feed = new SyndFeedInput().build(is);
-			return feed.getEntries().stream().filter(filter).sorted(Comparator.comparing(SyndEntry::getUpdatedDate))
-					.map(syndEntryTFunction)
-					// .map(se -> new BlogPost(se.getTitle(), buildUrlFrom(se.getLink()),
-					// se.getUpdatedDate(), ""))
-					// .sorted(Comparator.comparing(BlogPost::published).reversed())
+			return feed.getEntries()//
+					.stream()//
+					.filter(filter)//
+					.sorted(Comparator.comparing(SyndEntry::getUpdatedDate))//
+					.map(syndEntryTFunction)//
+					.limit(count)//
 					.toList();
 		}
 	}
