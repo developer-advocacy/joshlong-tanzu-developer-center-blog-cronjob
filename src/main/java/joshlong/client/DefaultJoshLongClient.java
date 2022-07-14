@@ -25,13 +25,6 @@ class DefaultJoshLongClient implements JoshLongClient {
 		this.client = client;
 	}
 
-	/*
-	 * @Override public List<BlogPost> getBlogPosts(int count) { return
-	 * this.posts.stream()// .limit(count)//
-	 * .sorted(Comparator.comparing(BlogPost::published).reversed())//
-	 * .collect(Collectors.toList()); }
-	 */
-
 	@Override
 	public List<TalkAbstract> getAbstracts() {
 		var query = """
