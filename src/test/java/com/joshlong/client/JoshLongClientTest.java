@@ -25,15 +25,6 @@ class JoshLongClientTest {
 	}
 
 	@Test
-	void blogs() {
-		var blogs = this.service.getBlogPosts(this.max);
-		Assertions.assertTrue(blogs.size() == 10, "there should only be 10 blogs");
-		var next = blogs.iterator().next();
-		Assertions.assertNotNull(next.published(), () -> "there should be a next entry");
-		Assertions.assertTrue(StringUtils.hasText(next.title()), "the title should not be empty");
-	}
-
-	@Test
 	void abstracts() {
 		var abstracts = this.service.getAbstracts().stream()
 				.anyMatch(ta -> StringUtils.hasText(ta.title()) && StringUtils.hasText(ta.description()));
@@ -41,7 +32,7 @@ class JoshLongClientTest {
 	}
 
 	@Test
-	void springTips() throws Exception {
+	void springTips() {
 		var springTips = this.service.getSpringTips(this.max);
 		var next = springTips.iterator().next();
 		Assertions.assertEquals(springTips.size(), this.max);

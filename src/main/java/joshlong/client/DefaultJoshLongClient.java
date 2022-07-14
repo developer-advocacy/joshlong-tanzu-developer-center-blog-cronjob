@@ -1,6 +1,7 @@
 package joshlong.client;
 
 import com.rometools.rome.io.SyndFeedInput;
+import feeds.FeedClient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -23,20 +24,16 @@ class DefaultJoshLongClient implements JoshLongClient {
 
 	private final HttpGraphQlClient client;
 
-	private final List<BlogPost> posts;
-
 	DefaultJoshLongClient(HttpGraphQlClient client) {
 		this.client = client;
-		this.posts = this.initFeed();
 	}
 
-	@Override
-	public List<BlogPost> getBlogPosts(int count) {
-		return this.posts.stream()//
-				.limit(count)//
-				.sorted(Comparator.comparing(BlogPost::published).reversed())//
-				.collect(Collectors.toList());
-	}
+	/*
+	 * @Override public List<BlogPost> getBlogPosts(int count) { return
+	 * this.posts.stream()// .limit(count)//
+	 * .sorted(Comparator.comparing(BlogPost::published).reversed())//
+	 * .collect(Collectors.toList()); }
+	 */
 
 	@Override
 	public List<TalkAbstract> getAbstracts() {
@@ -183,18 +180,15 @@ class DefaultJoshLongClient implements JoshLongClient {
 		return new Podcast(podcast.id(), podcast.uid(), podcast.title(), podcast.episodeUri(),
 				podcast.episodePhotoUri(), podcast.description(), buildDateFrom(podcast.date()));
 	}
-
-	@SneakyThrows
-	private List<BlogPost> initFeed() {
-		var url = buildUrlFrom("https://spring.io/blog/category/engineering.atom");
-		try (var in = url.openStream(); var is = new InputStreamReader(in)) {
-			var feed = new SyndFeedInput().build(is);
-			return feed.getEntries().stream()
-					.filter(se -> se.getAuthors().stream().anyMatch(s -> s.getName().contains("Josh Long")))
-					.map(se -> new BlogPost(se.getTitle(), buildUrlFrom(se.getLink()), se.getUpdatedDate(), ""))
-					.sorted(Comparator.comparing(BlogPost::published).reversed()).toList();
-		}
-	}
+	/*
+	 * @SneakyThrows private List<BlogPost> initFeed() { var url =
+	 * buildUrlFrom("https://spring.io/blog/category/engineering.atom"); try (var in =
+	 * url.openStream(); var is = new InputStreamReader(in)) { var feed = new
+	 * SyndFeedInput().build(is); return feed.getEntries().stream() .filter(se ->
+	 * se.getAuthors().stream().anyMatch(s -> s.getName().contains("Josh Long"))) .map(se
+	 * -> new BlogPost(se.getTitle(), buildUrlFrom(se.getLink()), se.getUpdatedDate(),
+	 * "")) .sorted(Comparator.comparing(BlogPost::published).reversed()).toList(); } }
+	 */
 
 	@SneakyThrows
 	private static URL buildUrlFrom(String href) {

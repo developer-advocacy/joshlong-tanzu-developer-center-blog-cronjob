@@ -11,6 +11,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
+import tdc.blogs.BlogPostProducer;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,6 +41,8 @@ class ActivityJobRunner implements ApplicationRunner {
 
 	private final URI githubFeedRepository;
 
+	private final BlogPostProducer postProducer;
+
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		var files = this.render(this.recentCount, this.client, this.renderer);
@@ -52,10 +55,10 @@ class ActivityJobRunner implements ApplicationRunner {
 		sections.put("Recent Podcasts", client.getPodcasts(max));
 		sections.put("Upcoming Appearances", client.getAppearances(max));
 		sections.put("Recent Spring Tips", client.getSpringTips(max));
-		sections.put("Recent Blog Posts", client.getBlogPosts(max));
+		sections.put("Recent Blog Posts", this.postProducer.getBlogPosts());
 		sections.put("Abstracts", client.getAbstracts());
 		var renderedOutput = new ArrayList<String>();
-		sections.forEach((title, list) -> renderedOutput.add(renderer.renderGroup(title, list)));
+		sections.forEach((title, list) -> renderedOutput.add(this.renderer.renderGroup(title, list)));
 		var output = renderedOutput.stream().collect(Collectors.joining(System.lineSeparator()));
 		return Map.of("html", renderer.renderMarkdownAsHtml(output), "md", output);
 	}

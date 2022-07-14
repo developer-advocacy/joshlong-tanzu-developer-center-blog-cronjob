@@ -25,6 +25,15 @@ import java.util.Locale;
 @RequiredArgsConstructor
 class BlogPostRunner implements ApplicationRunner {
 
+	/*
+	 * private final SimpleDateFormat simpleDateFormat; private final
+	 * GithubPullRequestClient pullRequestClient; private final JoshLongClient client;
+	 * private final BlogPostRenderer renderer; private final String head, base,
+	 * pullRequestTitle, pullRequestDescription; private final File localClonePath;
+	 * private final URI origin, fork; private final int recentCount; private final
+	 * BlogPostProducer blogPostProducer ;
+	 */
+
 	private final SimpleDateFormat simpleDateFormat;
 
 	private final GithubPullRequestClient pullRequestClient;
@@ -33,17 +42,18 @@ class BlogPostRunner implements ApplicationRunner {
 
 	private final BlogPostRenderer renderer;
 
-	private final URI origin, fork;
-
 	private final String head, base, pullRequestTitle, pullRequestDescription;
 
 	private final File localClonePath;
 
+	private final URI origin, fork;
+
 	private final int recentCount;
+
+	private final BlogPostProducer blogPostProducer;
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-
 		var pr = this.pullRequestClient.createPullRequest(//
 				branchName -> branchName + "-joshlong", //
 				this.origin, //
@@ -57,7 +67,7 @@ class BlogPostRunner implements ApplicationRunner {
 					var foldersRelativeToRootDirectory = "content/blog/";
 					var blogContent = new File(rootDirectory, foldersRelativeToRootDirectory);
 					Assert.isTrue(blogContent.exists(), () -> "the blog content folder does not exist!");
-					var blogs = this.client.getBlogPosts(this.recentCount);
+					var blogs = blogPostProducer.getBlogPosts();
 					Assert.isTrue(blogs.size() == this.recentCount, () -> "there should be " + recentCount + " blogs");
 					var filesWritten = this.writeAllBlogs(blogContent, blogs);
 					for (var file : filesWritten) {

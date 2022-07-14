@@ -1,3 +1,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   joshlong.client.JoshLongClientAutoConfiguration,\
-  github.GithubAutoConfiguration
+  github.GithubAutoConfiguration, \
+  feeds.FeedAutoConfiguration
+#  tdc.activity.ActivityJobConfiguration,\
+#  tdc.blogs.BlogJobConfiguration

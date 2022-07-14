@@ -12,6 +12,9 @@ public record TdcProperties(Activity activity, Blog blog) {
 	}
 
 	public record Blog(boolean enabled, int recentCount, File localClonePath, String pullRequestTitle,
-			String pullRequestDescription, String head, String base, URI fork, URI origin) {
+			String pullRequestDescription, String head, String base, URI fork, URI origin, SourceFeed sourceFeed) {
+
+		public record SourceFeed(URI feed, String authorName) {
+		}
 	}
 }

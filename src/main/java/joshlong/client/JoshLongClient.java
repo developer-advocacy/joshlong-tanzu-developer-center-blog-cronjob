@@ -4,8 +4,6 @@ import java.util.List;
 
 public interface JoshLongClient {
 
-	List<BlogPost> getBlogPosts(int count);
-
 	List<SpringTip> getSpringTips(int count);
 
 	List<TalkAbstract> getAbstracts();
