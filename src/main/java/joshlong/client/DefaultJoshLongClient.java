@@ -78,9 +78,11 @@ class DefaultJoshLongClient implements JoshLongClient {
 				.toEntityList(StringyAppearance.class) //
 				.map(sa -> sa.stream()//
 						.map(DefaultJoshLongClient::fromStringAppearance) //
-						.takeWhile(appearance -> appearance.startDate().after(ldt))
+						.takeWhile(appearance -> appearance.startDate().after(ldt))//
 						.sorted(Comparator.comparing(Appearance::startDate).reversed())//
-						.limit(count).sorted(Comparator.comparing(Appearance::startDate)).toList()//
+						.limit(count)//
+						.sorted(Comparator.comparing(Appearance::startDate))//
+						.toList()//
 				);
 		return stringy.flatMapMany(Flux::fromIterable).collectList().block();
 	}

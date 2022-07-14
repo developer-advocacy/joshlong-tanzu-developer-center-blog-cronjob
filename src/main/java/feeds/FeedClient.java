@@ -22,7 +22,7 @@ public class FeedClient {
 			return feed.getEntries()//
 					.stream()//
 					.filter(filter)//
-					.sorted(Comparator.comparing(SyndEntry::getUpdatedDate))//
+					.sorted(Comparator.comparing(SyndEntry::getUpdatedDate).reversed())//
 					.map(syndEntryTFunction)//
 					.limit(count)//
 					.toList();
