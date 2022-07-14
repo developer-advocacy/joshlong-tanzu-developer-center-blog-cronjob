@@ -29,9 +29,4 @@ public class FeedClient {
 		}
 	}
 
-	@SneakyThrows
-	private static URL buildUrlFrom(String href) {
-		return new URL(href);
-	}
-
 }
