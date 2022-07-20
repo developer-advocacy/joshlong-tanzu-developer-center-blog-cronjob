@@ -9,7 +9,7 @@ The program also pulls down the latest-and-greatest blogs that [I've written on 
 It's deployed as a [`CronJob`](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) on my Kubernetes cluster that runs periodically. You can kick off an instance of the `CronJob` manually with 
 
 ```shell
-kubectl create job --from=cronjob/activity-feeds-cronjob  activity-feeds-cronjob-run-$RANDOM
+kubectl create job --from=cronjob/tdc-activity-feed-cronjob  tdc-activity-feed-cronjob-$RANDOM
 ```
 
 
