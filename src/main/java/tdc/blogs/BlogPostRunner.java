@@ -25,20 +25,9 @@ import java.util.Locale;
 @RequiredArgsConstructor
 class BlogPostRunner implements ApplicationRunner {
 
-	/*
-	 * private final SimpleDateFormat simpleDateFormat; private final
-	 * GithubPullRequestClient pullRequestClient; private final JoshLongClient client;
-	 * private final BlogPostRenderer renderer; private final String head, base,
-	 * pullRequestTitle, pullRequestDescription; private final File localClonePath;
-	 * private final URI origin, fork; private final int recentCount; private final
-	 * BlogPostProducer blogPostProducer ;
-	 */
-
 	private final SimpleDateFormat simpleDateFormat;
 
 	private final GithubPullRequestClient pullRequestClient;
-
-	private final JoshLongClient client;
 
 	private final BlogPostRenderer renderer;
 
@@ -66,7 +55,7 @@ class BlogPostRunner implements ApplicationRunner {
 				this.pullRequestDescription, //
 				this.localClonePath, //
 				(rootDirectory, git, date) -> {
-					var foldersRelativeToRootDirectory = "content/blog/";
+					var foldersRelativeToRootDirectory = "content/blog/josh-long/";
 					var blogContent = new File(rootDirectory, foldersRelativeToRootDirectory);
 					Assert.isTrue(blogContent.exists(), () -> "the blog content folder does not exist!");
 					var blogs = blogPostProducer.getBlogPosts();

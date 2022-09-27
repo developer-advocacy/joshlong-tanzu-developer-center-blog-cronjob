@@ -65,10 +65,10 @@ class BlogJobConfiguration {
 
 	@Bean
 	ApplicationRunner blogPostWriterRunner(GithubPullRequestClient pullRequestClient, TdcProperties properties,
-			BlogPostProducer postProducer, JoshLongClient client, BlogPostRenderer renderer) {
+			BlogPostProducer postProducer, BlogPostRenderer renderer) {
 		var blog = properties.blog();
 		var pullRequest = blog.pullRequest();
-		return new BlogPostRunner(this.simpleDateFormat, pullRequestClient, client, renderer, blog.head(), blog.base(),
+		return new BlogPostRunner(this.simpleDateFormat, pullRequestClient, renderer, blog.head(), blog.base(),
 				pullRequest.title(), pullRequest.description(), blog.localClonePath(), blog.origin(), blog.fork(),
 				blog.recentCount(), postProducer, pullRequest.branchSuffix());
 	}
