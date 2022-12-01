@@ -130,7 +130,7 @@ class BlogPostRunner implements ApplicationRunner {
 		}
 
 		var changed = false;
-		if (!exists || !existingContent.equals(content)) {
+		if (!exists /* || !existingContent.equals(content) */) {
 			try (var out = new FileWriter(file)) {
 				FileCopyUtils.copy(content, out);
 				changed = true;

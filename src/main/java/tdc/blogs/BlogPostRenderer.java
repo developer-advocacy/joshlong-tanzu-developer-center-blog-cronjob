@@ -57,7 +57,7 @@ class BlogPostRenderer {
 	public String render(BlogPost post) {
 		var description = post.description();
 		var title = this.cleanTitleForMetadata(post.title());
-		var content = readBlogPostContentFrom(post.url());
+		var content = this.readBlogPostContentFrom(post.url());
 		var templateDate = this.simpleDateFormat.format(post.published());
 		return String.format(this.template, post.url().toExternalForm(), templateDate, description, title, content);
 	}
