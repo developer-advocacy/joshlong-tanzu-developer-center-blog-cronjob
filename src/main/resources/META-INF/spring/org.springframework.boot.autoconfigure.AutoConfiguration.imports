@@ -1,0 +1,3 @@
+joshlong.client.JoshLongClientAutoConfiguration
+github.GithubAutoConfiguration
+feeds.FeedAutoConfiguration

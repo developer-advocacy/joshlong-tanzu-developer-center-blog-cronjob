@@ -2,10 +2,10 @@
 set -e
 set -o pipefail
 
-export APP_NAME=tdc-activity-feed
+export APP_NAME=tanzu-developer-center-blog-cronjob
 export SECRETS=${APP_NAME}-secrets
 export SECRETS_FN=$HOME/${SECRETS}
-export IMAGE_NAME=gcr.io/${PROJECT_ID}/${APP_NAME}
+export IMAGE_NAME=gcr.io/${GCLOUD_PROJECT}/${APP_NAME}
 
 docker rmi -f $IMAGE_NAME
 cd $ROOT_DIR

@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: tdc-activity-feed-cronjob
+  name: tanzu-developer-center-blog-cronjob
 spec:
   schedule: "0 0 * * *"
   jobTemplate:
@@ -10,10 +10,10 @@ spec:
       template:
         spec:
           containers:
-            - name: tdc-activity-feed-cronjob-container
-              image: gcr.io/bootiful/tdc-activity-feed:latest
+            - name: tanzu-developer-center-blog-cronjob
+              image: gcr.io/pgtm-jlong/tanzu-developer-center-blog-cronjob
               imagePullPolicy: Always
               envFrom:
                 - secretRef:
-                    name: tdc-activity-feed-secrets
+                    name: tanzu-developer-center-blog-cronjob-secrets
           restartPolicy: OnFailure

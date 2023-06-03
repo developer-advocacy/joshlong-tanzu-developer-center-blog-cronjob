@@ -172,15 +172,6 @@ class DefaultJoshLongClient implements JoshLongClient {
 		return new Podcast(podcast.id(), podcast.uid(), podcast.title(), podcast.episodeUri(),
 				podcast.episodePhotoUri(), podcast.description(), buildDateFrom(podcast.date()));
 	}
-	/*
-	 * @SneakyThrows private List<BlogPost> initFeed() { var url =
-	 * buildUrlFrom("https://spring.io/blog/category/engineering.atom"); try (var in =
-	 * url.openStream(); var is = new InputStreamReader(in)) { var feed = new
-	 * SyndFeedInput().build(is); return feed.getEntries().stream() .filter(se ->
-	 * se.getAuthors().stream().anyMatch(s -> s.getName().contains("Josh Long"))) .map(se
-	 * -> new BlogPost(se.getTitle(), buildUrlFrom(se.getLink()), se.getUpdatedDate(),
-	 * "")) .sorted(Comparator.comparing(BlogPost::published).reversed()).toList(); } }
-	 */
 
 	@SneakyThrows
 	private static URL buildUrlFrom(String href) {
