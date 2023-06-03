@@ -8,7 +8,6 @@ env:
   GCLOUD_SA_KEY: ${{ secrets.GCLOUD_SA_KEY }}
   GH_PAT: ${{ secrets.GIT_PERSONAL_ACCESS_TOKEN }}
 
-
 on:
   push:
     branches: [ main ]

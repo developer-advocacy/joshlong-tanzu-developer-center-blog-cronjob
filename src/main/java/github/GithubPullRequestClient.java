@@ -21,7 +21,7 @@ import java.util.function.Function;
 import static org.springframework.util.FileSystemUtils.deleteRecursively;
 
 /**
- * This client <a href="https://github-api.kohsuke.org/"uses this library extensively<a/>
+ * This client <a href="https://github-api.kohsuke.org/">uses this library extensively<a/>
  */
 @Slf4j
 @RequiredArgsConstructor
