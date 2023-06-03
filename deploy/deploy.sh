@@ -2,7 +2,7 @@
 set -e
 set -o pipefail
 
-export APP_NAME=tanzu-developer-center-blog-cronjob
+export APP_NAME=joshlong-tanzu-developer-center-blog-cronjob
 export SECRETS=${APP_NAME}-secrets
 export SECRETS_FN=$HOME/${SECRETS}
 export IMAGE_NAME=gcr.io/${GCLOUD_PROJECT}/${APP_NAME}
@@ -28,5 +28,5 @@ sleep 5
 
 echo "running the cronjob once to kick things off..."
 
-kubectl create job --from=cronjob/${APP_NAME}  ${APP_NAME}-run-$RANDOM
+kubectl create job --from=cronjob/${APP_NAME} ${APP_NAME}-run-${RANDOM}
 

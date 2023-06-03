@@ -15,5 +15,5 @@ spec:
               imagePullPolicy: Always
               envFrom:
                 - secretRef:
-                    name: tanzu-developer-center-blog-cronjob-secrets
+                    name: joshlong-tanzu-developer-center-blog-cronjob-secrets
           restartPolicy: OnFailure
