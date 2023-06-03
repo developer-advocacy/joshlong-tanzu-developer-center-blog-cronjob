@@ -28,5 +28,5 @@ sleep 5
 
 echo "running the cronjob once to kick things off..."
 
-kubectl create job --from=cronjob/tdc-activity-feed-cronjob  tdc-activity-feed-cronjob-run-$RANDOM
+kubectl create job --from=cronjob/${APP_NAME}  ${APP_NAME}-run-$RANDOM
 
