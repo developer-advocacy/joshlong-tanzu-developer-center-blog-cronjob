@@ -6,6 +6,7 @@ env:
   GCLOUD_ZONE: ${{ secrets.GCLOUD_ZONE }}
   NS_NAME: ${{ secrets.NS_NAME }}
   GCLOUD_SA_KEY: ${{ secrets.GCLOUD_SA_KEY }}
+  GH_PAT: ${{ secrets.GIT_PERSONAL_ACCESS_TOKEN }}
 
 
 on:

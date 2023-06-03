@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: tanzu-developer-center-blog-cronjob
+  name: joshlong-tanzu-developer-center-blog-cronjob
 spec:
   schedule: "0 0 * * *"
   jobTemplate:
@@ -10,8 +10,8 @@ spec:
       template:
         spec:
           containers:
-            - name: tanzu-developer-center-blog-cronjob
-              image: gcr.io/pgtm-jlong/tanzu-developer-center-blog-cronjob
+            - name: joshlong-tanzu-developer-center-blog-cronjob
+              image: gcr.io/pgtm-jlong/joshlong-tanzu-developer-center-blog-cronjob
               imagePullPolicy: Always
               envFrom:
                 - secretRef:
