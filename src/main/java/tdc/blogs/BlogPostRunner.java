@@ -36,8 +36,6 @@ class BlogPostRunner implements ApplicationRunner {
 
 	private final URI origin, fork;
 
-	private final int recentCount;
-
 	private final BlogPostProducer blogPostProducer;
 
 	private final String branchSuffix;

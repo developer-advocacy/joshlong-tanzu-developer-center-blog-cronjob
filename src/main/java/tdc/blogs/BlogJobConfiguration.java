@@ -30,7 +30,6 @@ class BlogJobConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	BlogPostProducer blogPostProducer(FeedClient client, TdcProperties properties) {
-
 		//
 		class AuthorFilteringBlogPostProducer implements BlogPostProducer {
 
@@ -38,7 +37,7 @@ class BlogJobConfiguration {
 					.equals(properties.blog().sourceFeed().authorName());
 
 			private final Function<SyndEntry, BlogPost> transformer = se -> new BlogPost(se.getTitle(),
-					urlFrom(se.getLink()), se.getUpdatedDate(), "");
+					urlFrom(se.getLink()), se.getPublishedDate(), "");
 
 			@Override
 			@SneakyThrows
@@ -70,7 +69,7 @@ class BlogJobConfiguration {
 		var pullRequest = blog.pullRequest();
 		return new BlogPostRunner(this.simpleDateFormat, pullRequestClient, renderer, blog.head(), blog.base(),
 				pullRequest.title(), pullRequest.description(), blog.localClonePath(), blog.origin(), blog.fork(),
-				blog.recentCount(), postProducer, pullRequest.branchSuffix());
+			  postProducer, pullRequest.branchSuffix());
 	}
 
 }
