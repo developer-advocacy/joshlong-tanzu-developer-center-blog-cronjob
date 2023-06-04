@@ -110,7 +110,7 @@ public class GithubPullRequestClient {
 			log("pull request state? " + pullRequest.toString());
 			return pullRequest;
 		}
-		log.info("not sending a pull-request as nothing has changed. ");
+		log("not sending a pull-request as nothing has changed. ");
 		return null;
 	}
 

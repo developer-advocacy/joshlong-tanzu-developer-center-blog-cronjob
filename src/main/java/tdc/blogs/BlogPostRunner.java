@@ -56,8 +56,6 @@ class BlogPostRunner implements ApplicationRunner {
 					var blogContent = new File(rootDirectory, foldersRelativeToRootDirectory);
 					Assert.isTrue(blogContent.exists(), () -> "the blog content folder does not exist!");
 					var blogs = blogPostProducer.getBlogPosts();
-					// Assert.isTrue(blogs.size() >= (this.recentCount/2), () -> "there
-					// should be " + recentCount + " blogs");
 					var filesWritten = this.writeAllBlogs(blogContent, blogs);
 					for (var file : filesWritten) {
 						git.add().addFilepattern(foldersRelativeToRootDirectory + file.getName()).call();
