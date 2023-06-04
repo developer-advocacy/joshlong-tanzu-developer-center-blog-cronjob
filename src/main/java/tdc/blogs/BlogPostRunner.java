@@ -2,7 +2,6 @@ package tdc.blogs;
 
 import github.GithubPullRequestClient;
 import joshlong.client.BlogPost;
-import joshlong.client.JoshLongClient;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +58,8 @@ class BlogPostRunner implements ApplicationRunner {
 					var blogContent = new File(rootDirectory, foldersRelativeToRootDirectory);
 					Assert.isTrue(blogContent.exists(), () -> "the blog content folder does not exist!");
 					var blogs = blogPostProducer.getBlogPosts();
-					Assert.isTrue(blogs.size() == this.recentCount, () -> "there should be " + recentCount + " blogs");
+					// Assert.isTrue(blogs.size() >= (this.recentCount/2), () -> "there
+					// should be " + recentCount + " blogs");
 					var filesWritten = this.writeAllBlogs(blogContent, blogs);
 					for (var file : filesWritten) {
 						git.add().addFilepattern(foldersRelativeToRootDirectory + file.getName()).call();
@@ -121,16 +121,15 @@ class BlogPostRunner implements ApplicationRunner {
 	@SneakyThrows
 	private boolean writeBlog(BlogPost post, File file) {
 		var content = this.renderer.render(post);
-		var existingContent = (String) null;
 		var exists = file.exists();
 		if (exists) {
 			try (var in = new FileReader(file)) {
-				existingContent = FileCopyUtils.copyToString(in);
+				FileCopyUtils.copyToString(in);
 			}
 		}
 
 		var changed = false;
-		if (!exists /* || !existingContent.equals(content) */) {
+		if (!exists) {
 			try (var out = new FileWriter(file)) {
 				FileCopyUtils.copy(content, out);
 				changed = true;

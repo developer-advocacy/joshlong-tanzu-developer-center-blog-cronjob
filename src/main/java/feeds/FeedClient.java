@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,7 +23,7 @@ public class FeedClient {
 			return feed.getEntries()//
 					.stream()//
 					.filter(filter)//
-					.sorted(Comparator.comparing(SyndEntry::getUpdatedDate).reversed())//
+					.sorted(Comparator.comparing(SyndEntry::getPublishedDate).reversed())//
 					.map(syndEntryTFunction)//
 					.limit(count)//
 					.toList();

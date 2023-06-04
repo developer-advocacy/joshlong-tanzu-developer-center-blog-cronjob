@@ -34,8 +34,8 @@ class BlogJobConfiguration {
 		//
 		class AuthorFilteringBlogPostProducer implements BlogPostProducer {
 
-			private final Predicate<SyndEntry> filter = se -> se.getAuthors().stream()
-					.anyMatch(sp -> sp.getName().equals(properties.blog().sourceFeed().authorName()));
+			private final Predicate<SyndEntry> filter = se -> se.getAuthor()
+					.equals(properties.blog().sourceFeed().authorName());
 
 			private final Function<SyndEntry, BlogPost> transformer = se -> new BlogPost(se.getTitle(),
 					urlFrom(se.getLink()), se.getUpdatedDate(), "");
