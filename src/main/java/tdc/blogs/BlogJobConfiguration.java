@@ -69,7 +69,7 @@ class BlogJobConfiguration {
 		var pullRequest = blog.pullRequest();
 		return new BlogPostRunner(this.simpleDateFormat, pullRequestClient, renderer, blog.head(), blog.base(),
 				pullRequest.title(), pullRequest.description(), blog.localClonePath(), blog.origin(), blog.fork(),
-			  postProducer, pullRequest.branchSuffix());
+				postProducer, pullRequest.branchSuffix());
 	}
 
 }
