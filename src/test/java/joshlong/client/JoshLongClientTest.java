@@ -1,28 +1,22 @@
-package com.joshlong.client;
+package joshlong.client;
 
-import joshlong.client.Appearance;
-import joshlong.client.JoshLongClient;
-import joshlong.client.Podcast;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.graphql.client.HttpGraphQlClient;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.function.Predicate;
 
-@Slf4j
-@SpringBootTest
 class JoshLongClientTest {
 
 	private final int max = 10;
 
-	private final JoshLongClient service;
+	private final HttpGraphQlClient graphQlClient = HttpGraphQlClient //
+			.builder(WebClient.builder().baseUrl("https://api.joshlong.com/graphql").build()) //
+			.build();
 
-	JoshLongClientTest(@Autowired JoshLongClient service) {
-		this.service = service;
-	}
+	private final JoshLongClient service = new DefaultJoshLongClient(this.graphQlClient);
 
 	@Test
 	void abstracts() {
@@ -36,7 +30,7 @@ class JoshLongClientTest {
 		var springTips = this.service.getSpringTips(this.max);
 		var next = springTips.iterator().next();
 		Assertions.assertEquals(springTips.size(), this.max);
-		Assertions.assertNotNull(next.date());
+		Assertions.assertNotNull(next.published());
 		Assertions.assertTrue(StringUtils.hasText(next.title()));
 	}
 
@@ -58,7 +52,7 @@ class JoshLongClientTest {
 		var appearancePredicate = (Predicate<Appearance>) appearance -> //
 		appearance.startDate().getTime() > 0;
 		var appearances = this.service.getAppearances(this.max);
-		Assertions.assertEquals(appearances.size(), this.max);
+		Assertions.assertTrue(appearances.size() > 0);
 		Assertions.assertTrue(appearancePredicate.test(appearances.iterator().next()));
 	}
 

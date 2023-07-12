@@ -68,7 +68,7 @@ class ActivityRenderer {
 
 	public String render(SpringTip tip) {
 		var title = tip.title();
-		var date = tip.date();
+		var date = tip.published();
 		var youtubeHtml = String
 				.format("""
 						<iframe width="560" height="315" src="%s" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -78,7 +78,7 @@ class ActivityRenderer {
 				### %s - [%s](%s)
 				%s
 				""";
-		return String.format(md, this.simpleDateFormat.format(date), title, tip.blogUrl(), youtubeHtml);
+		return String.format(md, this.simpleDateFormat.format(date), title, null, youtubeHtml);
 	}
 
 	public String render(TalkAbstract talkAbstract) {

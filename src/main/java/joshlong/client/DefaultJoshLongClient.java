@@ -44,14 +44,16 @@ class DefaultJoshLongClient implements JoshLongClient {
 	public List<SpringTip> getSpringTips(int count) {
 		var query = """
 				query {
-				  springTipsEpisodes {
-				    blogUrl, date, seasonNumber, title, youtubeId, youtubeEmbedUrl
+				  springtipsVideos {
+				    id
+				    title
+				    published
 				  }
 				}
 				""";
 		return this.client//
 				.document(query)//
-				.retrieve("springTipsEpisodes")//
+				.retrieve("springtipsVideos")//
 				.toEntityList(StringySpringTip.class)//
 				.flatMapMany(list -> Flux.fromIterable(buildSpringTipsList(count, list)))//
 				.collectList() //
@@ -112,14 +114,10 @@ class DefaultJoshLongClient implements JoshLongClient {
 		return stringySpringTips//
 				.stream()//
 				.map(st -> new SpringTip(//
-						buildUrlFrom(st.blogUrl()), //
-						buildDateFrom(st.date()), //
-						st.seasonNumber(), //
-						st.title(), //
-						st.youtubeId(), //
-						buildUrlFrom(st.youtubeEmbedUrl())//
-				))//
-				.sorted(Comparator.comparing(SpringTip::date).reversed())//
+						st.title(), buildDateFrom(st.published()), st.id(),
+						buildUrlFrom("https://www.youtube.com/embed/" + st.id()))//
+				) //
+				.sorted(Comparator.comparing(SpringTip::published).reversed())//
 				.limit(count) //
 				.toList();
 	}
@@ -194,8 +192,7 @@ class DefaultJoshLongClient implements JoshLongClient {
 	record StringyAppearance(String event, String startDate, String endDate, String time, String marketingBlurb) {
 	}
 
-	record StringySpringTip(String blogUrl, String date, int seasonNumber, String title, String youtubeId,
-			String youtubeEmbedUrl) {
+	record StringySpringTip(String id, String title, String published) {
 	}
 
 	record StringyPodcast(String id, String uid, String title, URL episodeUri, URL episodePhotoUri, String description,
